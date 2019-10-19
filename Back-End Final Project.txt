@@ -1,0 +1,326 @@
+1. npm init (membuat package.json, node_modules, dll)
+
+2. npm install mysqljs/mysql express cors body-parser
+    -mysqljs/mysql adalah node.js driver untuk mysql
+    -body-parser adalah "Parse incoming request bodies in a middleware before your handlers, 
+        available under the req.body property.
+    -express adalah node.js framework untuk membuat API
+    -cors adalah node.js package untuk menyediakan middleware Express (app.listen)
+
+3. Buat schema database di mySQL workbench
+
+4. Buat folder database -> index.js (mengconnect-an dengan database mysql)
+
+    var mysql = require('mysql')
+
+    const db = mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: 'password',
+        database: 'final_project'
+    })
+
+    module.exports=db
+
+5. Buat folder index.js di folder utama 
+    var express = require('express')
+    var app = express()
+    var bodyParser = require('body-parser')
+    var cors = require('cors')
+    const port = 7777
+
+    app.use(bodyParser())
+    app.use(cors())
+
+    app.listen(port, console.log('Listening in port' + port))
+
+6. Buat 3 folder
+    1.controllers : index.js, authController.js
+    2.routers : index.js, authRouter.js
+    3.helper :
+
+    const db = require('../database')
+
+7. buat authController yaitu kumpulan query yang diperintahkan untuk dijalankan di mysql 
+(DALAM CONTOH INI HANYA BERKISAR DI GET, UNTUK POST DLL TAMBAH SENDIRI)
+
+    const db = require('../database')
+
+    module.exports = {
+        login: (req,res)=>{             // paranmeter pertama=string                                                  //parameter kedua adalah callback function    
+        db.query(`select * from users where username ='${req.query.username}' and password ='${req.query.password}'`, (err,result)=>{
+            // throw adalah ketika kondisi terpenuhi err dimunculkan dan yg dibawah (res.send) tidak akan dijalankan
+            if(err) throw err
+            res.send(result)
+            })
+        }
+    }
+    //yang pake body cuma get dan put
+    //users adalah nama schema database yg akan dituju
+    //kalao pake postman methodnya /getlist titik dua (:) brarti params
+    //Kurung kurawal pada import berarti destructuring
+
+        // CARA LAIN MEMANGGIL QUERY
+        // db.query(`${req.query.dbQuery`}, (err,result) =>{
+        //     if(err) throw err
+        //         res.send('Update Success!')
+        // })
+
+8. buat index.js di folder 1.controllers
+
+    const authController = require('./authController')
+    module.exports = { authController }
+
+9. buat authRouter yaitu kumpulan router (endpoint) yang akan menjalankan fungsi (controller)
+
+    var express = require('express')
+    var router = express.Router()
+    const { authController } = require('../1.controllers')
+
+    router.get('/login', authController.login)
+
+    module.exports = router
+
+10. buat index.js di folder 2.routers
+
+    const authRouter = require('./authRouter') 
+    module.exports = { authRouter }
+
+11. buat router di index.js (folder utama) fungsinya untuk router api 
+    const { authRouter } = require('./2.routers')
+    app.use('/auth', authRouter)    
+    -Contoh : ketika url dijalankan http://localhost:7777/auth --> maka akan mengakses authRouter
+        yang berisi berbagai macam endpoint untuk diakses api nya, bisa dilanjutkan dengan
+        http://localhost:7777/auth/login?username=Dimas&password=123 dsb
+
+12. jalankan server dengan cara run di terminal di folder FinalProject-api  :
+nodemon .
+
+13. install nodemailer
+    npm i nodemailer
+    impor nodemailer di authController dengan cara : var nodemailer = require('nodemailer)
+   -Buat transporter dg cara:
+        let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'ammoth77@gmail.com',
+            pass: 'invhlgwbrbwujsqj'
+        },
+        tls: {
+            rejectUnauthorized: false
+        }
+    }) 
+
+14. Buat API login di auth controller
+        login: (req,res)=>{
+        db.query(`select * from users where username ='${req.query.username}'`,(err,result)=>{
+            if(err) throw err
+            if(result.length>0){
+                if (req.query.password === result[0].password){
+                    res.send({
+                        status: '200',
+                        message: 'Selamat, anda berhasil login',
+                        result: result
+                    })
+                } else {
+                    res.send({
+                        status: '401',
+                        message: 'Password yang anda masukkan salah'
+                    })
+                }
+            } else {
+                res.send({
+                    status: '404',
+                    message: `Username ${req.query.username} tidak ditemukan`
+                })
+            }
+            })
+        }
+
+15. Buat function di login.jsx untuk get data dan login, lalu buat action creator untuk 
+    simpan ke local storage dan simpan ke redux state di action.jsx
+        export const onLoginUser = (inputId, inputUsername) => { 
+        return (dispatch)=>{
+            localStorage.setItem(
+                'userData',
+                JSON.stringify({id: inputId, username: inputUsername}) // --> property dan nama data sama maka bisa dipersingkat dg --> {id,username}
+                )
+                dispatch ({
+                type: 'LOGIN_SUCCESS',
+                payload: {
+                    id: inputId,
+                    username: inputUsername
+                }  
+            })
+    }}
+
+16. Buat API register di auth controller
+        register: (req,res)=>{
+        db.query(`insert into users (username, email, password, namaDepan, namaBelakang, alamat, kelurahan, kecamatan, kabupaten, propinsi, kodepos, isVerified) 
+        values ('${req.body.username}', '${req.body.email}', '${req.body.password}', '${req.body.namaDepan}', '${req.body.namaBelakang}', '${req.body.alamat}',
+        '${req.body.kelurahan}', '${req.body.kecamatan}', '${req.body.kabupaten}', '${req.body.propinsi}', '${req.body.kodepos}', 0)`, (err,result)=>{
+            if(err) throw err
+            res.send(result)
+            })
+        }
+    }
+
+17. Buat function register untuk get data, apabila user sudah ada muncul alert, jika aman lanjut cek semua kondisi
+    semua kolom harus diisi, password dan repeat password harus sama, jika kondisi terpenuhi lanjut cek email, jika
+    email sudah dipergunakan muncul alert, jika kondisi terpenuhi maka post melalui API register, semua mengacu pada
+    req.body (input user yang di setState)
+    Caranya sbb:
+        -Buat state untuk semua (loading:false, error:, success:, username: --sampai-- kodepos:)
+        onRegisterClick = ()=>{
+        axios.get(urlApi + 'getuser',
+            {
+                params: {
+                    username: this.state.username
+                }
+            }
+        ).then((res)=>{
+            // jika data ditemukan user berdasarkan email diketik
+            if (this.state.password !== this.state.repeatPassword){
+                this.setState({loading: false, error: `Password yang ditulis ulang tidak sama`})
+                setTimeout(
+                    () => { this.setState({error: ''}) },
+                    3000
+                )
+            } else if(res.data.length>0){
+                this.setState({loading: false, error: `Username "${this.state.username}" sudah digunakan`})
+                setTimeout(
+                    () => { this.setState({error: ''}) },
+                    3000
+                )
+            } else if(this.state.username && this.state.email && this.state.password && this.state.namaDepan &&
+                this.state.namaBelakang && this.state.alamat && this.state.kelurahan && this.state.kecamatan &&
+                this.state.kabupaten && this.state.propinsi && this.state.kodepos && this.state.repeatPassword){
+                    this.cekEmail()
+            } else { 
+                this.setState({loading: false, error: `Semua kolom harus diisi`})
+                setTimeout(
+                () => { this.setState({error: ''}) },
+                3000
+            )
+            }})
+        }
+
+    cekEmail = ()=>{           
+            axios.get(urlApi + 'getuser',
+            {
+                params: {
+                    email: this.state.email
+                }
+            }).then((res)=>{
+                // jika data ditemukan user berdasarkan email diketik
+                if(res.data.length>0){
+                    this.setState({loading: false, error: `Email "${this.state.email}" sudah digunakan`})
+                    setTimeout(
+                        () => { this.setState({error: ''}) },
+                        3000
+                    )
+                } else {
+                    this.postUser()
+                }})
+    }
+
+    postUser = ()=>{
+                axios.post(urlApi + 'register',
+                {
+                    username: this.state.username,
+                    email: this.state.email,
+                    password: this.state.password,                     
+                    namaDepan: this.state.namaDepan,
+                    namaBelakang: this.state.namaBelakang,
+                    alamat: this.state.alamat,
+                    kelurahan: this.state.kelurahan,
+                    kecamatan: this.state.kecamatan,
+                    kabupaten: this.state.kabupaten,
+                    propinsi: this.state.propinsi,
+                    kodepos: this.state.kodepos
+                }).then((res)=>{
+                this.setState({loading: false, success : 'Berhasil registrasi, Silahkan cek email anda untuk verifikasi akun'})
+                
+                console.log(res.data);
+            })
+        }
+
+        -Buat function loading button dan notification untuk dirender ke JSX register.jsx
+
+18. Buat endpoint /verify di authRouter
+        router.get('/verify', authControllers.verify)
+
+19. Buat API untuk email verifikasi registrasi
+    -Langkah no.12
+    -Buat mailOptions di bawah if(err) throw err, (((mailOptions))) adalah settingan email yang akan dikirimkan, 
+        dan (((funtion transporter))) yaitu function untuk mengirim email, dengan cara sbb:
+
+        let mailOptions = {
+            from: 'Fxpedia',
+            to: req.body.email,
+            subject: 'Email Verifikasi Akun Fxpedia',
+            html: `<p> <a href="http://localhost:7777/auth/verify?${req.body.username}&email${req.body.email}">Klik disini</a> untuk verifikasi akun Fxpedia anda</p>`
+        }
+        transporter.sendMail(mailOptions, (err2,info)=>{
+            if(err2) throw err2
+        })
+        res.send({
+            status: '201',
+            message: 'Berhasil registrasi, Silahkan cek email anda untuk verifikasi akun'
+        })
+    -Buat authController /verify, dengan cara:
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------ ecommerce backend -----------------------------------------------
+
+
+1.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
