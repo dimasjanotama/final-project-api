@@ -7,6 +7,10 @@ router.get('/login', authController.login)
 
 router.get('/getuser', authController.getuser)
 
+router.get('/getcart', authController.getcart)
+
+router.get('/getuserbyid', authController.getuserbyid)
+
 router.post('/register', authController.register)
 
 router.get('/verify', authController.verify)
@@ -26,6 +30,14 @@ router.get('/getproductbyid', authController.getproductbyid)
 router.get('/getproductsearch', authController.getproductsearch)
 
 router.delete('/deleteproduct', authController.deleteproduct)
+
+router.post('/addtocart', authController.addtocart)
+
+router.delete('/deletecart', authController.deletecart)
+
+router.put('/addqty', authController.addqty)
+
+router.get('/cekqty', authController.cekqty)
 
 
 

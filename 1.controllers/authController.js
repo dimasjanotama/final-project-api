@@ -23,6 +23,20 @@ module.exports = {
             res.send(result)
             })
         },
+    
+    getuserbyid: (req,res)=>{
+        db.query(`select * from users where id ='${req.query.userid}'`,(err,result)=>{
+            if(err) throw err
+            res.send(result)
+            })
+        },
+
+    getcart: (req,res)=>{
+        db.query(`select * from carts where idBuyer ='${req.query.idBuyer}'`,(err,result)=>{
+            if(err) throw err
+            res.send(result)
+            })
+        },
 
     login: (req,res)=>{
     db.query(`select * from users where username ='${req.query.username}'`,(err,result)=>{
@@ -83,7 +97,7 @@ module.exports = {
     uploadproduct: (req,res) => {
         let data = JSON.parse(req.body.data)
         
-        let sql = `insert into products values (0, '${data.idUser}', '${data.namaProduk}', '${data.kategori}', 
+        let sql = `insert into products values (0, '${data.idUser}', '${data.propinsiUser}','${data.namaProduk}', '${data.kategori}', 
         '${data.subKategori}', '${data.harga}', '${data.berat}', '${data.kondisi}', '${data.deskripsi}', 
         '${req.file.filename}', '${data.qty}')`
         try {
@@ -101,7 +115,7 @@ module.exports = {
 
     editproduct: (req,res) => {
         let data = JSON.parse(req.body.data)
-        let sql = `UPDATE products SET namaProduk='${data.namaProduk}', kategori='${data.kategori}', 
+        let sql = `UPDATE products SET namaProduk='${data.namaProduk}', propinsiUser='${data.propinsiUser}',kategori='${data.kategori}', 
         subKategori='${data.subKategori}', harga='${data.harga}', berat='${data.berat}', kondisi='${data.kondisi}', deskripsi='${data.deskripsi}', 
         fotoProduk='${req.file.filename}', qty='${data.qty}' WHERE id=${data.id}`
         try {
@@ -259,6 +273,71 @@ module.exports = {
         } catch (error) {
             console.log(error);
         }
-    }
-    
+    },
+
+    deletecart : (req, res)=>{
+        console.log(req);
+        try {
+            db.query(`DELETE FROM carts WHERE id=${req.body.idCart}`, (err, result)=>{
+                if(err) throw err
+                res.send(result)
+            })    
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    addtocart: (req,res)=>{
+        console.log(req.body)
+        let sql = `INSERT INTO carts VALUES (0, '${req.body.idProduct}', '${req.body.idBuyer}', '${req.body.idSeller}', '${req.body.propinsiBuyer}', 
+        '${req.body.propinsiSeller}','${req.body.namaProduk}', '${req.body.harga}', '${req.body.berat}', '${req.body.orderQty}', '${req.body.fotoProduk}')`
+        let sql2 = `UPDATE products SET qty = ${req.body.qty}-${req.body.orderQty} WHERE id = '${req.body.idProduct}'`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                try {
+                    db.query(sql2, (err,result)=>{
+                        if (err) throw err
+                        res.send('Success ATC')       
+                    })
+                } catch (error) {
+                    console.log(error);
+                }
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    cekqty: (req,res)=>{
+        let sql = `SELECT COUNT(*) AS sudahada, orderQty FROM carts WHERE idProduct ='${req.query.idProduct}' AND idBuyer='${req.query.idBuyer}'`
+        try {
+            db.query(sql ,(err,result)=>{
+                if(err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    addqty: (req,res)=>{
+        let sql = `UPDATE carts SET orderQty = ${req.body.orderQtyNow} WHERE idProduct = '${req.body.idProduct}'`
+        let sql2 = `UPDATE products SET qty = qty-${req.body.orderQty} WHERE id = '${req.body.idProduct}'`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                try {
+                    db.query(sql2, (err,result)=>{
+                        if (err) throw err
+                        res.send('Success ATC')       
+                    })
+                } catch (error) {
+                    console.log(error);
+                }
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
 }
