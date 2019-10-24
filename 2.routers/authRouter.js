@@ -53,6 +53,8 @@ router.put('/paymentverification', authController.paymentverification)
 
 router.put('/rejectverification', authController.rejectverification)
 
+router.put('/receivepacket', authController.receivepacket)
+
 
 // ---------------------------- MULTER -------------------------------------
 let multerStorageConfig = multer.diskStorage({

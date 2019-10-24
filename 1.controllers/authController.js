@@ -97,7 +97,7 @@ module.exports = {
     uploadproduct: (req,res) => {
         let data = JSON.parse(req.body.data)
         
-        let sql = `insert into products values (0, '${data.idUser}', '${data.propinsiUser}','${data.namaProduk}', '${data.kategori}', 
+        let sql = `insert into products values (0, '${data.idUser}', '${data.namaSeller}', '${data.propinsiUser}','${data.namaProduk}', '${data.kategori}', 
         '${data.subKategori}', '${data.harga}', '${data.berat}', '${data.kondisi}', '${data.deskripsi}', 
         '${req.file.filename}', '${data.qty}')`
         try {
@@ -436,6 +436,18 @@ module.exports = {
 
     rejectverification: (req,res) => {
         let sql = `UPDATE transactions SET isVerified=2 WHERE id=${req.body.id}`
+        try {
+            db.query(sql, (err, result) => {
+                if (err) throw err
+                res.send(result)
+            })   
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    receivepacket: (req,res) => {
+        let sql = `UPDATE transactions SET isR=2 WHERE id=${req.body.id}`
         try {
             db.query(sql, (err, result) => {
                 if (err) throw err
