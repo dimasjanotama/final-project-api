@@ -35,10 +35,23 @@ router.post('/addtocart', authController.addtocart)
 
 router.delete('/deletecart', authController.deletecart)
 
+router.delete('/deletecartbyuserid', authController.deletecartbyuserid)
+
 router.put('/addqty', authController.addqty)
 
 router.get('/cekqty', authController.cekqty)
 
+router.post('/addorder', authController.addorder)
+
+router.post('/addtransaction', authController.addtransaction)
+
+router.get('/gettransaction', authController.gettransaction)
+
+router.get('/getalltransaction', authController.getalltransaction)
+
+router.put('/paymentverification', authController.paymentverification)
+
+router.put('/rejectverification', authController.rejectverification)
 
 
 // ---------------------------- MULTER -------------------------------------
@@ -58,7 +71,7 @@ let filterConfig = (req, file, cb) => {
     } else {
         req.validation = {error : true, msg : 'File must be an image'}
         cb(null, false)
-    }
+    } 
 }
 
 let upload = multer({
@@ -69,5 +82,7 @@ let upload = multer({
 router.post('/uploadproduct', upload.single('aneh'), authController.uploadproduct) 
 
 router.post('/editproduct', upload.single('anehedit'), authController.editproduct) 
+
+router.post('/paymentconfirm', upload.single('anehkonfirmasi'), authController.paymentconfirm) 
 
 module.exports = router

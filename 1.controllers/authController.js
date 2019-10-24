@@ -287,6 +287,18 @@ module.exports = {
         }
     },
 
+    deletecartbyuserid : (req, res)=>{
+        console.log(req);
+        try {
+            db.query(`DELETE FROM carts WHERE idBuyer=${req.body.idBuyer}`, (err, result)=>{
+                if(err) throw err
+                res.send(result)
+            })    
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
     addtocart: (req,res)=>{
         console.log(req.body)
         let sql = `INSERT INTO carts VALUES (0, '${req.body.idProduct}', '${req.body.idBuyer}', '${req.body.idSeller}', '${req.body.propinsiBuyer}', 
@@ -336,6 +348,99 @@ module.exports = {
                     console.log(error);
                 }
             })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    addtransaction: (req,res)=>{
+        console.log(req.body);
+        let sql = `INSERT INTO transactions (id, tglPembelian, tglExpired, idBuyer, nilaiTransaksi) VALUES (0, '${req.body.tglPembelian}', '${req.body.tglExpired}' , '${req.body.idBuyer}', '${req.body.nilaiTransaksi}')`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send('berhasil cekout')
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    addorder: (req,res)=>{
+        console.log(req.body);
+        let sql = `INSERT INTO orders VALUES (0, '${req.body.idBuyer}', '${req.body.namaBuyer}', '${req.body.alamat}', '${req.body.kelurahan}',
+        '${req.body.kecamatan}', '${req.body.kabupaten}', '${req.body.propinsi}', '${req.body.kodepos}', '${req.body.idSeller}', '${req.body.namaSeller}',
+        '${req.body.idCart}', '${req.body.idProduct}', '${req.body.namaProduk}', '${req.body.orderQty}', '${req.body.fotoProduk}', 0 )`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send('berhasil add order')
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    gettransaction : (req, res)=>{
+        let sql = `SELECT * FROM transactions WHERE idBuyer=${req.query.idBuyer}`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    paymentconfirm: (req,res) => {
+        let data = JSON.parse(req.body.data)
+        let sql = `UPDATE transactions SET tglPembayaran='${data.tglPembayaran}', buktiPembayaran='${req.file.filename}', 
+        noRek='${data.noRek}', NamaRek='${data.namaRek}' WHERE idBuyer=${data.idBuyer}`
+        try {
+            // if(req.validation) throw req.validation
+            // if(req.file.size>5) throw {error: true, message: 'Image size too large'}
+            db.query(sql, (err, result) => {
+                if (err) throw err
+                res.send(result)
+            })   
+        } catch (error) {
+            fs.unlinkSync(req.file.path)
+            console.log(error);
+        }
+    },
+ 
+    getalltransaction: (req, res)=>{
+        let sql = `SELECT * FROM transactions`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    paymentverification: (req,res) => {
+        let sql = `UPDATE transactions SET isVerified=1 WHERE id=${req.body.id}`
+        try {
+            db.query(sql, (err, result) => {
+                if (err) throw err
+                res.send(result)
+            })   
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    rejectverification: (req,res) => {
+        let sql = `UPDATE transactions SET isVerified=2 WHERE id=${req.body.id}`
+        try {
+            db.query(sql, (err, result) => {
+                if (err) throw err
+                res.send(result)
+            })   
         } catch (error) {
             console.log(error);
         }
