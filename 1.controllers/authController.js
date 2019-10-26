@@ -275,10 +275,19 @@ module.exports = {
     },
 
     deletecart : (req, res)=>{
+        let sql=`DELETE FROM carts WHERE id=${req.body.idCart}` 
+        let sql2=`DELETE FROM orders WHERE idBuyer=${req.body.idBuyer} ORDER BY id DESC LIMIT 1` 
         try {
-            db.query(`DELETE FROM carts WHERE id=${req.body.idCart}`, (err, result)=>{
+            db.query(sql, (err, result)=>{
                 if(err) throw err
-                res.send(result)
+                try {
+                    db.query(sql2, (err, result)=>{
+                        if(err) throw err
+                        res.send(result)
+                    })    
+                } catch (error) {
+                    console.log(error);
+                }
             })    
         } catch (error) {
             console.log(error);
@@ -585,8 +594,8 @@ module.exports = {
     },
 
     shippingverification: (req,res) => {
-        let sql = `UPDATE transactions SET isShipped=1, statusNow='Sudah dikirim' WHERE id=${req.body.id}`
-        let sql2 = `UPDATE alltransactions SET isShipped=1, statusNow='Sudah dikirim' WHERE id=${req.body.id}`
+        let sql = `UPDATE transactions SET hakBuyer=${req.body.hakBuyer}, isShipped=1, statusNow='Sudah dikirim' WHERE id=${req.body.id}`
+        let sql2 = `UPDATE alltransactions SET hakBuyer=${req.body.hakBuyer}, isShipped=1, statusNow='Sudah dikirim' WHERE id=${req.body.id}`
         let sql3 = `UPDATE orders SET isShipped=1 WHERE idTransaction=${req.body.id}`
         try {
             db.query(sql, (err, result) => {
@@ -613,8 +622,8 @@ module.exports = {
     },
 
     transactiondone: (req,res) => {
-        let sql = `UPDATE transactions SET hakBuyer=${req.body.hakBuyer}, statusNow='Transaksi selesai' WHERE id=${req.body.id}`
-        let sql2 = `UPDATE alltransactions SET hakBuyer=${req.body.hakBuyer}, statusNow='Transaksi selesai' WHERE id=${req.body.id}`
+        let sql = `UPDATE transactions SET statusNow='Transaksi selesai' WHERE id=${req.body.id}`
+        let sql2 = `UPDATE alltransactions SET statusNow='Transaksi selesai' WHERE id=${req.body.id}`
         let sql3 = `UPDATE orders SET isDone=1 WHERE idTransaction=${req.body.id}`
         try {
             db.query(sql, (err, result) => {
@@ -673,7 +682,7 @@ module.exports = {
 
     rejectshippingverification: (req,res) => {
         let sql = `UPDATE transactions SET isShipped=2, statusNow='Barang tidak dikirim' WHERE id=${req.body.id}`
-        let sql2 = `UPDATE alltransactions SET isVerified=2, statusNow='Barang tidak dikirim' WHERE id=${req.body.id}`
+        let sql2 = `UPDATE alltransactions SET isShipped=2, statusNow='Barang tidak dikirim' WHERE id=${req.body.id}`
         try {
             db.query(sql, (err, result) => {
                 if (err) throw err
@@ -693,8 +702,8 @@ module.exports = {
     },
 
     receivepacket: (req,res) => {
-        let sql = `UPDATE transactions SET tglPenerimaan=${req.body.tglPenerimaan}, statusNow='Sudah diterima' WHERE id=${req.body.id}`
-        let sql2 = `UPDATE alltransactions SET tglPenerimaan=${req.body.tglPenerimaan}, statusNow='Sudah diterima' WHERE id=${req.body.id}`
+        let sql = `UPDATE transactions SET tglPenerimaan='${req.body.tglPenerimaan}', statusNow='Sudah diterima' WHERE id=${req.body.id}`
+        let sql2 = `UPDATE alltransactions SET tglPenerimaan='${req.body.tglPenerimaan}', statusNow='Sudah diterima' WHERE id=${req.body.id}`
         try {
             db.query(sql, (err, result) => {
                 if (err) throw err
@@ -724,8 +733,8 @@ module.exports = {
         }
     }, 
 
-    isverified : (req, res)=>{
-        let sql = `SELECT transactions.isVerified FROM transactions WHERE idBuyer=${idBuyer}`
+    gethistory: (req, res)=>{
+        let sql = `SELECT * FROM history WHERE idBuyer=${req.query.userId} OR idSeller=${req.query.userId}`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
@@ -734,5 +743,5 @@ module.exports = {
         } catch (error) {
             console.log(error);
         }
-    }
+    }, 
 }

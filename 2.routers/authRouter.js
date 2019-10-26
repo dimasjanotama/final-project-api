@@ -77,7 +77,7 @@ router.put('/receivepacket', authController.receivepacket)
 
 router.get('/getorderlist', authController.getorderlist)
 
-router.get('/isverified', authController.isverified)
+router.get('/gethistory', authController.gethistory)
 
 
 // ---------------------------- MULTER -------------------------------------
