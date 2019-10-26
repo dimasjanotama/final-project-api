@@ -45,15 +45,39 @@ router.post('/addorder', authController.addorder)
 
 router.post('/addtransaction', authController.addtransaction)
 
+router.post('/addhistory', authController.addhistory)
+
 router.get('/gettransaction', authController.gettransaction)
 
-router.get('/getalltransaction', authController.getalltransaction)
+router.get('/getalltransactions', authController.getalltransactions)
+
+router.get('/getunverifiedtransaction', authController.getunverifiedtransaction)
+
+router.get('/getverifiedtransaction', authController.getverifiedtransaction)
+
+router.get('/gettransactionorder', authController.gettransactionorder)
+
+router.get('/getunpaidverification', authController.getunpaidverification)
 
 router.put('/paymentverification', authController.paymentverification)
 
 router.put('/rejectverification', authController.rejectverification)
 
+router.put('/shippingverification', authController.shippingverification)
+
+router.put('/rejectshippingverification', authController.rejectshippingverification)
+
+router.put('/transactiondone', authController.transactiondone)
+
+router.delete('/deletetransaction', authController.deletetransaction)
+
+router.get('/getshippingverification', authController.getshippingverification)
+
 router.put('/receivepacket', authController.receivepacket)
+
+router.get('/getorderlist', authController.getorderlist)
+
+router.get('/isverified', authController.isverified)
 
 
 // ---------------------------- MULTER -------------------------------------
@@ -86,5 +110,7 @@ router.post('/uploadproduct', upload.single('aneh'), authController.uploadproduc
 router.post('/editproduct', upload.single('anehedit'), authController.editproduct) 
 
 router.post('/paymentconfirm', upload.single('anehkonfirmasi'), authController.paymentconfirm) 
+
+router.post('/shippingconfirm', upload.single('anehshipping'), authController.shippingconfirm) 
 
 module.exports = router

@@ -264,7 +264,6 @@ module.exports = {
     },
 
     deleteproduct : (req, res)=>{
-        console.log(req);
         try {
             db.query(`DELETE FROM products WHERE id=${req.body.id}`, (err, result)=>{
                 if(err) throw err
@@ -276,7 +275,6 @@ module.exports = {
     },
 
     deletecart : (req, res)=>{
-        console.log(req);
         try {
             db.query(`DELETE FROM carts WHERE id=${req.body.idCart}`, (err, result)=>{
                 if(err) throw err
@@ -288,7 +286,6 @@ module.exports = {
     },
 
     deletecartbyuserid : (req, res)=>{
-        console.log(req);
         try {
             db.query(`DELETE FROM carts WHERE idBuyer=${req.body.idBuyer}`, (err, result)=>{
                 if(err) throw err
@@ -300,9 +297,9 @@ module.exports = {
     },
 
     addtocart: (req,res)=>{
-        console.log(req.body)
-        let sql = `INSERT INTO carts VALUES (0, '${req.body.idProduct}', '${req.body.idBuyer}', '${req.body.idSeller}', '${req.body.propinsiBuyer}', 
-        '${req.body.propinsiSeller}','${req.body.namaProduk}', '${req.body.harga}', '${req.body.berat}', '${req.body.orderQty}', '${req.body.fotoProduk}')`
+        let sql = `INSERT INTO carts VALUES (0, '${req.body.idProduct}', '${req.body.idBuyer}', '${req.body.idSeller}', '${req.body.namaSeller}', 
+        '${req.body.propinsiBuyer}', '${req.body.propinsiSeller}','${req.body.namaProduk}', '${req.body.harga}', '${req.body.berat}', 
+        '${req.body.orderQty}', '${req.body.fotoProduk}')`
         let sql2 = `UPDATE products SET qty = ${req.body.qty}-${req.body.orderQty} WHERE id = '${req.body.idProduct}'`
         try {
             db.query(sql, (err,result)=>{
@@ -354,12 +351,35 @@ module.exports = {
     },
 
     addtransaction: (req,res)=>{
-        console.log(req.body);
-        let sql = `INSERT INTO transactions (id, tglPembelian, tglExpired, idBuyer, nilaiTransaksi) VALUES (0, '${req.body.tglPembelian}', '${req.body.tglExpired}' , '${req.body.idBuyer}', '${req.body.nilaiTransaksi}')`
+        let sql = `INSERT INTO transactions (id, tglPembelian, tglExpired, idBuyer, namaBuyer, idSeller, namaSeller, nilaiTransaksi, statusNow) 
+        VALUES (0, '${req.body.tglPembelian}', '${req.body.tglExpired}', '${req.body.idBuyer}', '${req.body.namaBuyer}', '${req.body.idSeller}', 
+        '${req.body.namaSeller}', '${req.body.nilaiTransaksi}', 'Menunggu pembayaran')`
+
+        let sql2= `UPDATE orders SET idTransaction=(SELECT transactions.id FROM transactions WHERE idBuyer=${req.body.idBuyer} ORDER BY id DESC LIMIT 1) 
+        WHERE idBuyer='${req.body.idBuyer}'` 
+
+        let sql3= `INSERT INTO alltransactions (id, tglPembelian, tglExpired, idBuyer, namaBuyer, idSeller, namaSeller, nilaiTransaksi, statusNow) 
+        VALUES (0, '${req.body.tglPembelian}', '${req.body.tglExpired}', '${req.body.idBuyer}', '${req.body.namaBuyer}', '${req.body.idSeller}', 
+        '${req.body.namaSeller}', '${req.body.nilaiTransaksi}', 'Menunggu pembayaran')`
+        
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
-                res.send('berhasil cekout')
+                try {
+                    db.query(sql2, (err,result)=>{
+                        if (err) throw err
+                        try {
+                            db.query(sql3, (err,result)=>{
+                                if (err) throw err
+                                res.send('berhasil cekout')
+                            })
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    })
+                } catch (error) {
+                    console.log(error);
+                }
             })
         } catch (error) {
             console.log(error);
@@ -367,14 +387,26 @@ module.exports = {
     },
 
     addorder: (req,res)=>{
-        console.log(req.body);
         let sql = `INSERT INTO orders VALUES (0, '${req.body.idBuyer}', '${req.body.namaBuyer}', '${req.body.alamat}', '${req.body.kelurahan}',
         '${req.body.kecamatan}', '${req.body.kabupaten}', '${req.body.propinsi}', '${req.body.kodepos}', '${req.body.idSeller}', '${req.body.namaSeller}',
-        '${req.body.idCart}', '${req.body.idProduct}', '${req.body.namaProduk}', '${req.body.orderQty}', '${req.body.fotoProduk}', 0 )`
+        0, '${req.body.idProduct}', '${req.body.namaProduk}', '${req.body.orderQty}', '${req.body.harga}', '${req.body.fotoProduk}', 0, 0, 0 )`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
                 res.send('berhasil add order')
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    addhistory: (req,res)=>{
+        let sql = `INSERT INTO history VALUES (0, '${req.body.idTransaction}', '${req.body.tglPenerimaan}', '${req.body.idBuyer}', '${req.body.namaBuyer}',
+        '${req.body.idSeller}', '${req.body.namaSeller}', ${req.body.nilaiTransaksi}, '${req.body.hakSeller}', '${req.body.hakBuyer}')`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send('berhasil')
             })
         } catch (error) {
             console.log(error);
@@ -393,24 +425,7 @@ module.exports = {
         }
     },
 
-    paymentconfirm: (req,res) => {
-        let data = JSON.parse(req.body.data)
-        let sql = `UPDATE transactions SET tglPembayaran='${data.tglPembayaran}', buktiPembayaran='${req.file.filename}', 
-        noRek='${data.noRek}', NamaRek='${data.namaRek}' WHERE idBuyer=${data.idBuyer}`
-        try {
-            // if(req.validation) throw req.validation
-            // if(req.file.size>5) throw {error: true, message: 'Image size too large'}
-            db.query(sql, (err, result) => {
-                if (err) throw err
-                res.send(result)
-            })   
-        } catch (error) {
-            fs.unlinkSync(req.file.path)
-            console.log(error);
-        }
-    },
- 
-    getalltransaction: (req, res)=>{
+    getalltransactions : (req, res)=>{
         let sql = `SELECT * FROM transactions`
         try {
             db.query(sql, (err,result)=>{
@@ -422,24 +437,255 @@ module.exports = {
         }
     },
 
-    paymentverification: (req,res) => {
-        let sql = `UPDATE transactions SET isVerified=1 WHERE id=${req.body.id}`
+    getunverifiedtransaction : (req, res)=>{
+        let sql = `SELECT * FROM transactions WHERE idBuyer=${req.query.idBuyer} AND isVerified=0`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    getverifiedtransaction : (req, res)=>{
+        let sql = `SELECT * FROM transactions WHERE idBuyer=${req.query.idBuyer} AND isVerified=1`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    gettransactionorder : (req, res)=>{
+        let sql = `SELECT * FROM transactions WHERE idSeller=${req.query.idSeller} AND isVerified=1`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    paymentconfirm: (req,res) => {
+        let data = JSON.parse(req.body.data)
+        let sql = `UPDATE transactions SET tglPembayaran='${data.tglPembayaran}', buktiPembayaran='${req.file.filename}', 
+        noRek='${data.noRek}', NamaRek='${data.namaRek}', statusNow='Menunggu Verifikasi' WHERE id=${data.idBuyTransaction}`
+        
+        let sql2 = `UPDATE alltransactions SET tglPembayaran='${data.tglPembayaran}', buktiPembayaran='${req.file.filename}', 
+        noRek='${data.noRek}', NamaRek='${data.namaRek}', statusNow='Menunggu Verifikasi' WHERE id=${data.idBuyTransaction}`
+        
         try {
             db.query(sql, (err, result) => {
                 if (err) throw err
+                try {
+                    db.query(sql2, (err, result) => {
+                        if (err) throw err
+                        res.send('Success')
+                    })   
+                } catch (error) {
+                    fs.unlinkSync(req.file.path)
+                    console.log(error);
+                }
+            })   
+        } catch (error) {
+            fs.unlinkSync(req.file.path)
+            console.log(error);
+        }
+    },
+
+    shippingconfirm: (req,res) => {
+        let data = JSON.parse(req.body.data)
+        let sql = `UPDATE transactions SET tglPengiriman='${data.tglPengiriman}', buktiPengiriman='${req.file.filename}', 
+        noResi='${data.noResi}', hakSeller='${data.hakSeller}', noRekSeller='${data.noRekSeller}', namaRekSeller='${data.namaRekSeller}'  
+        WHERE id=${data.idSellTransaction}`
+
+        let sql2 = `UPDATE alltransactions SET tglPengiriman='${data.tglPengiriman}', buktiPengiriman='${req.file.filename}', 
+        noResi='${data.noResi}', hakSeller='${data.hakSeller}', noRekSeller='${data.noRekSeller}', namaRekSeller='${data.namaRekSeller}'  
+        WHERE id=${data.idSellTransaction}`
+        try {
+            // if(req.validation) throw req.validation
+            // if(req.file.size>5) throw {error: true, message: 'Image size too large'}
+            db.query(sql, (err, result) => {
+                if (err) throw err
+                try {
+                    // if(req.validation) throw req.validation
+                    // if(req.file.size>5) throw {error: true, message: 'Image size too large'}
+                    db.query(sql2, (err, result) => {
+                        if (err) throw err
+                        res.send(result)
+                    })   
+                } catch (error) {
+                    fs.unlinkSync(req.file.path)
+                    console.log(error);
+                }
+            })   
+        } catch (error) {
+            fs.unlinkSync(req.file.path)
+            console.log(error);
+        }
+    },
+ 
+    getunpaidverification: (req, res)=>{
+        let sql = `SELECT * FROM transactions WHERE buktiPembayaran IS NOT NULL`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
                 res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    getshippingverification: (req, res)=>{
+        let sql = `SELECT * FROM transactions WHERE buktiPengiriman IS NOT NULL`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    paymentverification: (req,res) => {
+        let sql = `UPDATE transactions SET isVerified=1, statusNow='Menunggu Pengiriman' WHERE id=${req.body.id}`
+        let sql2 = `UPDATE alltransactions SET isVerified=1, statusNow='Menunggu Pengiriman' WHERE id=${req.body.id}`
+        let sql3 = `UPDATE orders SET isVerified=1 WHERE idTransaction=${req.body.id}`
+        try {
+            db.query(sql, (err, result) => {
+                if (err) throw err
+                try {
+                    db.query(sql2, (err, result) => {
+                        if (err) throw err
+                        try {
+                            db.query(sql3, (err, result) => {
+                                if (err) throw err
+                                res.send('success')
+                            })   
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    })   
+                } catch (error) {
+                    console.log(error);
+                }
             })   
         } catch (error) {
             console.log(error);
         }
     },
 
-    rejectverification: (req,res) => {
-        let sql = `UPDATE transactions SET isVerified=2 WHERE id=${req.body.id}`
+    shippingverification: (req,res) => {
+        let sql = `UPDATE transactions SET isShipped=1, statusNow='Sudah dikirim' WHERE id=${req.body.id}`
+        let sql2 = `UPDATE alltransactions SET isShipped=1, statusNow='Sudah dikirim' WHERE id=${req.body.id}`
+        let sql3 = `UPDATE orders SET isShipped=1 WHERE idTransaction=${req.body.id}`
         try {
             db.query(sql, (err, result) => {
                 if (err) throw err
+                try {
+                    db.query(sql2, (err, result) => {
+                        if (err) throw err
+                        try {
+                            db.query(sql3, (err, result) => {
+                                if (err) throw err
+                                res.send('success')
+                            })   
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    })   
+                } catch (error) {
+                    console.log(error);
+                }
+            })   
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    transactiondone: (req,res) => {
+        let sql = `UPDATE transactions SET hakBuyer=${req.body.hakBuyer}, statusNow='Transaksi selesai' WHERE id=${req.body.id}`
+        let sql2 = `UPDATE alltransactions SET hakBuyer=${req.body.hakBuyer}, statusNow='Transaksi selesai' WHERE id=${req.body.id}`
+        let sql3 = `UPDATE orders SET isDone=1 WHERE idTransaction=${req.body.id}`
+        try {
+            db.query(sql, (err, result) => {
+                if (err) throw err
+                try {
+                    db.query(sql2, (err, result) => {
+                        if (err) throw err
+                        try {
+                            db.query(sql3, (err, result) => {
+                                if (err) throw err
+                                res.send('success')
+                            })   
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    })   
+                } catch (error) {
+                    console.log(error);
+                }
+            })   
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    deletetransaction: (req, res)=>{
+        try {
+            db.query(`DELETE FROM transactions WHERE id=${req.body.id} AND statusNow='Transaksi selesai'` , (err, result)=>{
+                if(err) throw err
                 res.send(result)
+            })    
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    rejectverification: (req,res) => {
+        let sql = `UPDATE transactions SET isVerified=2, statusNow='Pembayaran Tidak Terverifikasi' WHERE id=${req.body.id}`
+        let sql2 = `UPDATE alltransactions SET isVerified=2, statusNow='Pembayaran Tidak Terverifikasi' WHERE id=${req.body.id}`
+        try {
+            db.query(sql, (err, result) => {
+                if (err) throw err
+                try {
+                    db.query(sql2, (err, result) => {
+                        if (err) throw err
+                        res.send('success')
+                    })   
+                } catch (error) {
+                    console.log(error);
+                }
+            })   
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    rejectshippingverification: (req,res) => {
+        let sql = `UPDATE transactions SET isShipped=2, statusNow='Barang tidak dikirim' WHERE id=${req.body.id}`
+        let sql2 = `UPDATE alltransactions SET isVerified=2, statusNow='Barang tidak dikirim' WHERE id=${req.body.id}`
+        try {
+            db.query(sql, (err, result) => {
+                if (err) throw err
+                try {
+                    db.query(sql2, (err, result) => {
+                        if (err) throw err
+                        res.send('success')
+
+                    })   
+                } catch (error) {
+                    console.log(error);
+                }
             })   
         } catch (error) {
             console.log(error);
@@ -447,14 +693,46 @@ module.exports = {
     },
 
     receivepacket: (req,res) => {
-        let sql = `UPDATE transactions SET isR=2 WHERE id=${req.body.id}`
+        let sql = `UPDATE transactions SET tglPenerimaan=${req.body.tglPenerimaan}, statusNow='Sudah diterima' WHERE id=${req.body.id}`
+        let sql2 = `UPDATE alltransactions SET tglPenerimaan=${req.body.tglPenerimaan}, statusNow='Sudah diterima' WHERE id=${req.body.id}`
         try {
             db.query(sql, (err, result) => {
                 if (err) throw err
-                res.send(result)
+                try {
+                    db.query(sql2, (err, result) => {
+                        if (err) throw err
+                        res.send('success')
+                    })   
+                } catch (error) {
+                    console.log(error);
+                }
             })   
         } catch (error) {
             console.log(error);
         }
     },
+
+    getorderlist : (req, res)=>{
+        let sql = `SELECT * FROM orders WHERE idSeller=${req.query.idSeller} AND isVerified=1`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    }, 
+
+    isverified : (req, res)=>{
+        let sql = `SELECT transactions.isVerified FROM transactions WHERE idBuyer=${idBuyer}`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    }
 }
