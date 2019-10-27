@@ -64,9 +64,10 @@ module.exports = {
     },
 
     register: (req,res)=>{
-        let sql = `insert into users (id, username, email, password, namaDepan, namaBelakang, alamat, kelurahan, kecamatan, kabupaten, propinsi, kodepos, isVerified) 
-        values (0, '${req.body.username}', '${req.body.email}', '${req.body.password}', '${req.body.namaDepan}', '${req.body.namaBelakang}', '${req.body.alamat}',
-        '${req.body.kelurahan}', '${req.body.kecamatan}', '${req.body.kabupaten}', '${req.body.propinsi}', '${req.body.kodepos}', 0)`
+        let sql = `insert into users (id, username, email, password, namaDepan, namaBelakang, noTelp, alamat, kelurahan, kecamatan, kabupaten, 
+        propinsi, pulau, kodepos, tglDaftar, isVerified) values (0, '${req.body.username}', '${req.body.email}', '${req.body.password}', '${req.body.namaDepan}', 
+        '${req.body.namaBelakang}', '${req.body.alamat}', '${req.body.noTelp}', '${req.body.kelurahan}', '${req.body.kecamatan}', '${req.body.kabupaten}', 
+        '${req.body.propinsi}', '${req.body.pulau}', '${req.body.kodepos}', '${req.body.tglDaftar}' 0)`
     db.query(sql, (err,result)=>{
         if(err) throw err
         let mailOptions = {
@@ -434,6 +435,18 @@ module.exports = {
         }
     },
 
+    gettransactionbuy : (req, res)=>{
+        let sql = `SELECT * FROM transactions WHERE idSeller=${req.query.idSeller}`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
     getalltransactions : (req, res)=>{
         let sql = `SELECT * FROM transactions`
         try {
@@ -723,6 +736,18 @@ module.exports = {
 
     getorderlist : (req, res)=>{
         let sql = `SELECT * FROM orders WHERE idSeller=${req.query.idSeller} AND isVerified=1`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    getorderbuy : (req, res)=>{
+        let sql = `SELECT * FROM orders WHERE idBuyer=${req.query.idBuyer} AND isVerified=1`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err

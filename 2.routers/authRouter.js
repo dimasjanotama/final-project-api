@@ -49,6 +49,8 @@ router.post('/addhistory', authController.addhistory)
 
 router.get('/gettransaction', authController.gettransaction)
 
+router.get('/gettransactionbuy', authController.gettransactionbuy)
+
 router.get('/getalltransactions', authController.getalltransactions)
 
 router.get('/getunverifiedtransaction', authController.getunverifiedtransaction)
@@ -76,6 +78,8 @@ router.get('/getshippingverification', authController.getshippingverification)
 router.put('/receivepacket', authController.receivepacket)
 
 router.get('/getorderlist', authController.getorderlist)
+
+router.get('/getorderbuy', authController.getorderbuy)
 
 router.get('/gethistory', authController.gethistory)
 
