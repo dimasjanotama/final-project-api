@@ -83,6 +83,8 @@ router.put('/feedbackpositif', authController.feedbackpositif)
 
 router.put('/feedbacknegatif', authController.feedbacknegatif)
 
+router.put('/updateprofile', authController.updateprofile)
+
 router.get('/getorderlist', authController.getorderlist)
 
 router.get('/getorderbuy', authController.getorderbuy)

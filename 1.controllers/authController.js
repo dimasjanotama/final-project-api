@@ -16,7 +16,6 @@ let transporter = nodemailer.createTransport({
 })
 
 module.exports = {
-
     getuser: (req,res)=>{
         try {
             db.query(`select * from users where username ='${req.query.username}' or email ='${req.query.email}'`,(err,result)=>{
@@ -27,6 +26,7 @@ module.exports = {
             console.log(error);
         }    
     },
+    
     
     getuserbyid: (req,res)=>{
         try {
@@ -895,6 +895,21 @@ module.exports = {
             })   
         } catch (error) {
             fs.unlinkSync(req.file.path)
+            console.log(error);
+        }
+    },
+
+    updateprofile: (req,res)=>{
+        let sql = `UPDATE users SET username='${req.body.username}', email='${req.body.email}', password='${req.body.password}', namaDepan='${req.body.namaDepan}',
+        namaBelakang='${req.body.namaBelakang}', noTelp='${req.body.noTelp}', alamat='${req.body.alamat}', kelurahan='${req.body.kelurahan}', 
+        kecamatan='${req.body.kecamatan}', kabupaten='${req.body.kabupaten}', propinsi='${req.body.propinsi}', pulau='${req.body.pulau}',
+        kodepos='${req.body.kodepos}' WHERE id=${req.body.userId}`
+        try {
+            db.query(sql, (err,result)=>{
+                if(err) throw err
+                res.send('Success')
+                })
+        } catch (error) {
             console.log(error);
         }
     }
