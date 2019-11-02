@@ -13,6 +13,8 @@ router.get('/getuserbyid', authController.getuserbyid)
 
 router.post('/register', authController.register)
 
+router.post('/postdataseller', authController.postdataseller)
+
 router.get('/verify', authController.verify)
 
 router.get('/getproduct', authController.getproduct)
@@ -77,11 +79,23 @@ router.get('/getshippingverification', authController.getshippingverification)
 
 router.put('/receivepacket', authController.receivepacket)
 
+router.put('/feedbackpositif', authController.feedbackpositif)
+
+router.put('/feedbacknegatif', authController.feedbacknegatif)
+
 router.get('/getorderlist', authController.getorderlist)
 
 router.get('/getorderbuy', authController.getorderbuy)
 
 router.get('/gethistory', authController.gethistory)
+
+router.get('/getdataseller', authController.getdataseller)
+
+router.get('/getproductsold', authController.getproductsold)
+
+router.get('/gettotalproduct', authController.gettotalproduct)
+
+router.get('/gettransactiondetail', authController.gettransactiondetail)
 
 
 // ---------------------------- MULTER -------------------------------------
@@ -116,5 +130,7 @@ router.post('/editproduct', upload.single('anehedit'), authController.editproduc
 router.post('/paymentconfirm', upload.single('anehkonfirmasi'), authController.paymentconfirm) 
 
 router.post('/shippingconfirm', upload.single('anehshipping'), authController.shippingconfirm) 
+
+router.post('/updatefoto', upload.single('anehfoto'), authController.updatefoto) 
 
 module.exports = router

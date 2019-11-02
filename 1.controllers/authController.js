@@ -18,87 +18,127 @@ let transporter = nodemailer.createTransport({
 module.exports = {
 
     getuser: (req,res)=>{
-        db.query(`select * from users where username ='${req.query.username}' or email ='${req.query.email}'`,(err,result)=>{
-            if(err) throw err
-            res.send(result)
+        try {
+            db.query(`select * from users where username ='${req.query.username}' or email ='${req.query.email}'`,(err,result)=>{
+                if(err) throw err
+                res.send(result)
             })
-        },
+        } catch (error) {
+            console.log(error);
+        }    
+    },
     
     getuserbyid: (req,res)=>{
-        db.query(`select * from users where id ='${req.query.userid}'`,(err,result)=>{
-            if(err) throw err
-            res.send(result)
+        try {
+            db.query(`select * from users where id ='${req.query.userid}'`,(err,result)=>{
+                if(err) throw err
+                res.send(result)
             })
-        },
+        } catch (error) {
+            console.log(error);
+        }    
+    },
 
     getcart: (req,res)=>{
-        db.query(`select * from carts where idBuyer ='${req.query.idBuyer}'`,(err,result)=>{
-            if(err) throw err
-            res.send(result)
-            })
-        },
+        try {
+            db.query(`select * from carts where idBuyer ='${req.query.idBuyer}'`,(err,result)=>{
+                if(err) throw err
+                res.send(result)
+            })    
+        } catch (error) {
+            console.log(error);
+        }    
+    },
 
     login: (req,res)=>{
-    db.query(`select * from users where username ='${req.query.username}'`,(err,result)=>{
-        if(err) throw err
-        if(result.length>0){
-            if (req.query.password === result[0].password){
-                res.send({
-                    status: '200',
-                    message: 'Selamat, anda berhasil login',
-                    result: result
-                })
-            } else {
-                res.send({
-                    status: '401',
-                    message: 'Password yang anda masukkan salah'
-                })
-            }
-        } else {
-            res.send({
-                status: '404',
-                message: `Username ${req.query.username} tidak ditemukan`
+        try {
+            db.query(`select * from users where username ='${req.query.username}'`,(err,result)=>{
+                if(err) throw err
+                if(result.length>0){
+                    if (req.query.password === result[0].password){
+                        res.send({
+                            status: '200',
+                            message: 'Selamat, anda berhasil login',
+                            result: result
+                        })
+                    } else {
+                        res.send({
+                            status: '401',
+                            message: 'Password yang anda masukkan salah'
+                        })
+                    }
+                } else {
+                    res.send({
+                        status: '404',
+                        message: `Username ${req.query.username} tidak ditemukan`
+                    })
+                }
             })
+        } catch (error) {
+            console.log(error);
         }
-        })
     },
 
     register: (req,res)=>{
         let sql = `insert into users (id, username, email, password, namaDepan, namaBelakang, noTelp, alamat, kelurahan, kecamatan, kabupaten, 
-        propinsi, pulau, kodepos, tglDaftar, isVerified) values (0, '${req.body.username}', '${req.body.email}', '${req.body.password}', '${req.body.namaDepan}', 
-        '${req.body.namaBelakang}', '${req.body.alamat}', '${req.body.noTelp}', '${req.body.kelurahan}', '${req.body.kecamatan}', '${req.body.kabupaten}', 
-        '${req.body.propinsi}', '${req.body.pulau}', '${req.body.kodepos}', '${req.body.tglDaftar}' 0)`
-    db.query(sql, (err,result)=>{
-        if(err) throw err
-        let mailOptions = {
-            from: 'Fxpedia',
-            to: req.body.email,
-            subject: 'Email Verifikasi Akun Fxpedia',
-            html: `<p> <a href="http://localhost:7777/auth/verify?username=${req.body.username}&email=${req.body.email}">Klik disini</a> untuk verifikasi akun Fxpedia anda</p>`
+        propinsi, pulau, kodepos, tglDaftar, isVerified) values (0, '${req.body.username}', '${req.body.email}', '${req.body.password}', 
+        '${req.body.namaDepan}', '${req.body.namaBelakang}', '${req.body.noTelp}', '${req.body.alamat}', '${req.body.kelurahan}', '${req.body.kecamatan}', 
+        '${req.body.kabupaten}', '${req.body.propinsi}', '${req.body.pulau}', '${req.body.kodepos}', '${req.body.tglDaftar}', 0)`
+        try {
+            db.query(sql, (err,result)=>{
+                if(err) throw err
+                let mailOptions = {
+                    from: 'Fxpedia',
+                    to: req.body.email,
+                    subject: 'Email Verifikasi Akun Fxpedia',
+                    html: `<p> <a href="http://localhost:7777/auth/verify?username=${req.body.username}&email=${req.body.email}">Klik disini</a> untuk verifikasi akun Fxpedia anda</p>`
+                }
+                try {
+                    transporter.sendMail(mailOptions, (err2, info)=>{
+                        if(err2) throw err2
+                    })
+                    res.send({
+                        status: '201',
+                        message: `Berhasil registrasi, Silahkan cek email anda untuk verifikasi akun`
+                    })
+                } catch (error) {
+                    console.log(error);
+                }
+                })
+        } catch (error) {
+            console.log(error);
         }
-        transporter.sendMail(mailOptions, (err2, info)=>{
-            if(err2) throw err2
-        })
-        res.send({
-            status: '201',
-            message: `Berhasil registrasi, Silahkan cek email anda untuk verifikasi akun`
-        })
-        })
+    },
+
+    postdataseller: (req,res)=>{
+        let sql = `INSERT INTO dataseller (idSeller) VALUES ('${req.body.idSeller}')`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send('berhasil')
+            })
+        } catch (error) {
+            console.log(error);
+        }
     },
 
     verify: (req,res)=>{
         let sql = `update users set isVerified = 1 where username = '${req.query.username}' and email = '${req.query.email}'`
-        db.query(sql, (err,result)=>{
-        if(err) throw err
-           res.send( `Berhasil verifikasi, Selamat! Akun anda sudah terdaftar
-            Klik <a href="http://localhost:3000/login">disini</a> untuk kembali ke halaman login`)
-        })
-        },
+        try {
+            db.query(sql, (err,result)=>{
+                if(err) throw err
+                   res.send( `Berhasil verifikasi, Selamat! Akun anda sudah terdaftar
+                    Klik <a href="http://localhost:3000/login">disini</a> untuk kembali ke halaman login`)
+                })
+        } catch (error) {
+            console.log(error); 
+        }
+    },
 
     uploadproduct: (req,res) => {
         let data = JSON.parse(req.body.data)
         
-        let sql = `insert into products values (0, '${data.idUser}', '${data.namaSeller}', '${data.propinsiUser}','${data.namaProduk}', '${data.kategori}', 
+        let sql = `insert into products values (0, '${data.idUser}', '${data.namaSeller}', '${data.pulauUser}','${data.namaProduk}', '${data.kategori}', 
         '${data.subKategori}', '${data.harga}', '${data.berat}', '${data.kondisi}', '${data.deskripsi}', 
         '${req.file.filename}', '${data.qty}')`
         try {
@@ -308,7 +348,7 @@ module.exports = {
 
     addtocart: (req,res)=>{
         let sql = `INSERT INTO carts VALUES (0, '${req.body.idProduct}', '${req.body.idBuyer}', '${req.body.idSeller}', '${req.body.namaSeller}', 
-        '${req.body.propinsiBuyer}', '${req.body.propinsiSeller}','${req.body.namaProduk}', '${req.body.harga}', '${req.body.berat}', 
+        '${req.body.pulauBuyer}', '${req.body.pulauSeller}','${req.body.namaProduk}', '${req.body.harga}', '${req.body.berat}', 
         '${req.body.orderQty}', '${req.body.fotoProduk}')`
         let sql2 = `UPDATE products SET qty = ${req.body.qty}-${req.body.orderQty} WHERE id = '${req.body.idProduct}'`
         try {
@@ -398,8 +438,9 @@ module.exports = {
 
     addorder: (req,res)=>{
         let sql = `INSERT INTO orders VALUES (0, '${req.body.idBuyer}', '${req.body.namaBuyer}', '${req.body.alamat}', '${req.body.kelurahan}',
-        '${req.body.kecamatan}', '${req.body.kabupaten}', '${req.body.propinsi}', '${req.body.kodepos}', '${req.body.idSeller}', '${req.body.namaSeller}',
-        0, '${req.body.idProduct}', '${req.body.namaProduk}', '${req.body.orderQty}', '${req.body.harga}', '${req.body.fotoProduk}', 0, 0, 0 )`
+        '${req.body.kecamatan}', '${req.body.kabupaten}', '${req.body.propinsi}', '${req.body.kodepos}', '${req.body.pulauBuyer}', '${req.body.idSeller}', 
+        '${req.body.namaSeller}', '${req.body.pulauSeller}', 0, '${req.body.idProduct}', '${req.body.namaProduk}', '${req.body.berat}', 
+        '${req.body.orderQty}', '${req.body.harga}', '${req.body.fotoProduk}', 0, 0, 0 )`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
@@ -460,7 +501,7 @@ module.exports = {
     },
 
     getunverifiedtransaction : (req, res)=>{
-        let sql = `SELECT * FROM transactions WHERE idBuyer=${req.query.idBuyer} AND isVerified=0`
+        let sql = `SELECT * FROM transactions WHERE idBuyer=${req.query.idBuyer} AND isVerified = 0`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
@@ -734,6 +775,32 @@ module.exports = {
         }
     },
 
+    feedbackpositif: (req,res) => {
+        let sql = `UPDATE dataseller SET totalPuas=totalPuas+1, totalFeedback=totalFeedback+1, 
+        totalTransaksi=totalTransaksi+1 WHERE idSeller=${req.body.idSeller}`
+        try {
+            db.query(sql, (err, result) => {
+                if (err) throw err
+                res.send('success')    
+            })   
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    feedbacknegatif: (req,res) => {
+        let sql = `UPDATE dataseller SET totalPuas=totalPuas, totalFeedback=totalFeedback+1, 
+        totalTransaksi=totalTransaksi+1 WHERE idSeller=${req.body.idSeller}`
+        try {
+            db.query(sql, (err, result) => {
+                if (err) throw err
+                res.send('success')    
+            })   
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
     getorderlist : (req, res)=>{
         let sql = `SELECT * FROM orders WHERE idSeller=${req.query.idSeller} AND isVerified=1`
         try {
@@ -769,4 +836,66 @@ module.exports = {
             console.log(error);
         }
     }, 
+
+    getdataseller: (req, res)=>{
+        let sql = `SELECT * FROM dataseller WHERE idSeller=${req.query.idSeller}`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    }, 
+
+    getproductsold: (req, res)=>{
+        let sql = `SELECT COUNT(orderQty) AS qtyTerjual FROM orders WHERE idSeller=${req.query.idSeller} AND isDone=1`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    gettotalproduct: (req, res)=>{
+        let sql = `SELECT COUNT(id) AS totalProduct FROM products WHERE idUser=${req.query.idSeller}`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    }, 
+
+    gettransactiondetail: (req, res)=>{
+        let sql = `SELECT * FROM orders WHERE idBuyer=${req.query.idBuyer} AND idTransaction=${req.query.idTransaction}`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    updatefoto: (req,res) => {
+        let data = JSON.parse(req.body.data)
+        let sql = `UPDATE users SET fotoProfil='${req.file.filename}' WHERE id=${data}`
+        try {
+            db.query(sql, (err, result) => {
+                if (err) throw err
+                res.send('Success')
+            })   
+        } catch (error) {
+            fs.unlinkSync(req.file.path)
+            console.log(error);
+        }
+    }
 }
