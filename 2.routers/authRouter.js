@@ -85,6 +85,8 @@ router.put('/feedbacknegatif', authController.feedbacknegatif)
 
 router.put('/updateprofile', authController.updateprofile)
 
+router.put('/setlogtime', authController.setlogtime)
+
 router.get('/getorderlist', authController.getorderlist)
 
 router.get('/getorderbuy', authController.getorderbuy)
@@ -98,6 +100,8 @@ router.get('/getproductsold', authController.getproductsold)
 router.get('/gettotalproduct', authController.gettotalproduct)
 
 router.get('/gettransactiondetail', authController.gettransactiondetail)
+
+router.put('/transactiontimeout', authController.transactiontimeout)
 
 
 // ---------------------------- MULTER -------------------------------------

@@ -401,16 +401,16 @@ module.exports = {
     },
 
     addtransaction: (req,res)=>{
-        let sql = `INSERT INTO transactions (id, tglPembelian, tglExpired, idBuyer, namaBuyer, idSeller, namaSeller, nilaiTransaksi, statusNow) 
+        let sql = `INSERT INTO transactions (id, tglPembelian, tglExpired, idBuyer, namaBuyer, idSeller, namaSeller, nilaiTransaksi, statusNow, ket) 
         VALUES (0, '${req.body.tglPembelian}', '${req.body.tglExpired}', '${req.body.idBuyer}', '${req.body.namaBuyer}', '${req.body.idSeller}', 
-        '${req.body.namaSeller}', '${req.body.nilaiTransaksi}', 'Menunggu pembayaran')`
+        '${req.body.namaSeller}', '${req.body.nilaiTransaksi}', 'Menunggu pembayaran', 'Lanjut')`
 
         let sql2= `UPDATE orders SET idTransaction=(SELECT transactions.id FROM transactions WHERE idBuyer=${req.body.idBuyer} ORDER BY id DESC LIMIT 1) 
         WHERE idBuyer='${req.body.idBuyer}'` 
 
-        let sql3= `INSERT INTO alltransactions (id, tglPembelian, tglExpired, idBuyer, namaBuyer, idSeller, namaSeller, nilaiTransaksi, statusNow) 
+        let sql3= `INSERT INTO alltransactions (id, tglPembelian, tglExpired, idBuyer, namaBuyer, idSeller, namaSeller, nilaiTransaksi, statusNow, ket) 
         VALUES (0, '${req.body.tglPembelian}', '${req.body.tglExpired}', '${req.body.idBuyer}', '${req.body.namaBuyer}', '${req.body.idSeller}', 
-        '${req.body.namaSeller}', '${req.body.nilaiTransaksi}', 'Menunggu pembayaran')`
+        '${req.body.namaSeller}', '${req.body.nilaiTransaksi}', 'Menunggu pembayaran', 'Lanjut')`
         
         try {
             db.query(sql, (err,result)=>{
@@ -453,7 +453,7 @@ module.exports = {
 
     addhistory: (req,res)=>{
         let sql = `INSERT INTO history VALUES (0, '${req.body.idTransaction}', '${req.body.tglPenerimaan}', '${req.body.idBuyer}', '${req.body.namaBuyer}',
-        '${req.body.idSeller}', '${req.body.namaSeller}', ${req.body.nilaiTransaksi}, '${req.body.hakSeller}', '${req.body.hakBuyer}')`
+        '${req.body.idSeller}', '${req.body.namaSeller}', ${req.body.nilaiTransaksi}, '${req.body.hakSeller}', '${req.body.hakBuyer}', 'Done')`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
@@ -714,16 +714,44 @@ module.exports = {
         }
     },
 
+    deletetransactionmunyuk: (req, res)=>{
+        try {
+            db.query(`DELETE FROM transactions WHERE id=${req.body.id} AND statusNow='Transaksi selesai'` , (err, result)=>{
+                if(err) throw err
+                res.send(result)
+            })    
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
     rejectverification: (req,res) => {
-        let sql = `UPDATE transactions SET isVerified=2, statusNow='Pembayaran Tidak Terverifikasi' WHERE id=${req.body.id}`
-        let sql2 = `UPDATE alltransactions SET isVerified=2, statusNow='Pembayaran Tidak Terverifikasi' WHERE id=${req.body.id}`
+        let sql = `UPDATE transactions SET isVerified=2, statusNow='Pembayaran Tidak Terverifikasi', ket='Hangus' WHERE id=${req.body.id}`
+        let sql2 = `UPDATE alltransactions SET isVerified=2, statusNow='Pembayaran Tidak Terverifikasi', ket='Hangus' WHERE id=${req.body.id}`
+        let sql3 = `INSERT INTO history VALUES (0, '${req.body.id}', '${req.body.tglDitolak}', '${req.body.idBuyer}', '${req.body.namaBuyer}',
+                    '${req.body.idSeller}', '${req.body.namaSeller}', ${req.body.nilaiTransaksi}, 0, 0, 'Barang tidak dikirim')`
+        let sql4 = `DELETE FROM transactions WHERE id=${req.body.id} AND ket='Hangus'`
         try {
             db.query(sql, (err, result) => {
                 if (err) throw err
                 try {
                     db.query(sql2, (err, result) => {
                         if (err) throw err
-                        res.send('success')
+                        try {
+                            db.query(sql3, (err, result) => {
+                                if (err) throw err
+                                try {
+                                    db.query(sql4, (err, result) => {
+                                        if (err) throw err
+                                        res.send('success')
+                                    })   
+                                } catch (error) {
+                                    console.log(error);
+                                }
+                            })   
+                        } catch (error) {
+                            console.log(error);
+                        }
                     })   
                 } catch (error) {
                     console.log(error);
@@ -735,16 +763,32 @@ module.exports = {
     },
 
     rejectshippingverification: (req,res) => {
-        let sql = `UPDATE transactions SET isShipped=2, statusNow='Barang tidak dikirim' WHERE id=${req.body.id}`
-        let sql2 = `UPDATE alltransactions SET isShipped=2, statusNow='Barang tidak dikirim' WHERE id=${req.body.id}`
+        let sql = `UPDATE transactions SET isShipped=2, statusNow='Barang tidak dikirim', ket='Hangus' WHERE id=${req.body.id}`
+        let sql2 = `UPDATE alltransactions SET isShipped=2, statusNow='Barang tidak dikirim', ket='Hangus' WHERE id=${req.body.id}`
+        let sql3 = `INSERT INTO history VALUES (0, '${req.body.id}', '${req.body.tglDitolak}', '${req.body.idBuyer}', '${req.body.namaBuyer}',
+                    '${req.body.idSeller}', '${req.body.namaSeller}', ${req.body.nilaiTransaksi}, 0, 0, 'Barang tidak dikirim')`
+        let sql4 = `DELETE FROM transactions WHERE id=${req.body.id} AND ket='Hangus'`
         try {
             db.query(sql, (err, result) => {
                 if (err) throw err
                 try {
                     db.query(sql2, (err, result) => {
                         if (err) throw err
-                        res.send('success')
-
+                        try {
+                            db.query(sql3, (err, result) => {
+                                if (err) throw err
+                                try {
+                                    db.query(sql4, (err, result) => {
+                                        if (err) throw err
+                                        res.send('success')
+                                    })   
+                                } catch (error) {
+                                    console.log(error);
+                                }
+                            })   
+                        } catch (error) {
+                            console.log(error);
+                        }
                     })   
                 } catch (error) {
                     console.log(error);
@@ -908,6 +952,38 @@ module.exports = {
             db.query(sql, (err,result)=>{
                 if(err) throw err
                 res.send('Success')
+                })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    setlogtime: (req,res)=>{
+        let sql = `UPDATE dataseller SET waktuLogout='${req.body.waktuLogout}' WHERE idSeller=${req.body.userId}`
+        try {
+            db.query(sql, (err,result)=>{
+                if(err) throw err
+                res.send('Success')
+                })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    transactiontimeout: (req,res)=>{
+        let sql = `UPDATE transactions SET ket='Hangus' WHERE id=${req.body.id}`
+        let sql2 = `UPDATE alltransactions SET ket='Hangus' WHERE id=${req.body.id}`
+        try {
+            db.query(sql, (err,result)=>{
+                if(err) throw err
+                try {
+                    db.query(sql2, (err,result)=>{
+                        if(err) throw err
+                        res.send('Success')
+                        })
+                } catch (error) {
+                    console.log(error);
+                }
                 })
         } catch (error) {
             console.log(error);
