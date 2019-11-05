@@ -19,6 +19,8 @@ router.get('/verify', authController.verify)
 
 router.get('/getproduct', authController.getproduct)
 
+router.get('/getnewestproduct', authController.getnewestproduct)
+
 router.get('/countproducts', authController.countproducts)
 
 router.get('/countfilterproducts', authController.countfilterproducts)
@@ -103,6 +105,17 @@ router.get('/gettransactiondetail', authController.gettransactiondetail)
 
 router.put('/transactiontimeout', authController.transactiontimeout)
 
+router.put('/refreshquantity', authController.refreshquantity)
+
+router.put('/rejectquantity', authController.rejectquantity)
+
+router.get('/totaltransactionbuy', authController.totaltransactionbuy)
+
+router.get('/totalproductnow', authController.totalproductnow)
+
+router.get('/totalproductsold', authController.totalproductsold)
+
+router.get('/mostwantedproduct', authController.mostwantedproduct)
 
 // ---------------------------- MULTER -------------------------------------
 let multerStorageConfig = multer.diskStorage({

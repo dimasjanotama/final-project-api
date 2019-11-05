@@ -184,7 +184,18 @@ module.exports = {
         }
     },
 
-    
+    getnewestproduct : (req, res)=>{
+        let sql = `SELECT * FROM products WHERE idUser=${req.query.userId} ORDER BY id DESC LIMIT 5`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
     countproducts : (req, res)=>{
         let sql = `SELECT COUNT(*) AS totalitem FROM products WHERE idUser='${req.query.userid}'`
         try {
@@ -316,8 +327,8 @@ module.exports = {
     },
 
     deletecart : (req, res)=>{
-        let sql=`DELETE FROM carts WHERE id=${req.body.idCart}` 
-        let sql2=`DELETE FROM orders WHERE idBuyer=${req.body.idBuyer} ORDER BY id DESC LIMIT 1` 
+        let sql=`DELETE FROM carts WHERE id=${req.body.idCart}`
+        let sql2=`DELETE FROM orders WHERE idBuyer=${req.body.idBuyer} ORDER BY id DESC LIMIT 1`
         try {
             db.query(sql, (err, result)=>{
                 if(err) throw err
@@ -350,18 +361,10 @@ module.exports = {
         let sql = `INSERT INTO carts VALUES (0, '${req.body.idProduct}', '${req.body.idBuyer}', '${req.body.idSeller}', '${req.body.namaSeller}', 
         '${req.body.pulauBuyer}', '${req.body.pulauSeller}','${req.body.namaProduk}', '${req.body.harga}', '${req.body.berat}', 
         '${req.body.orderQty}', '${req.body.fotoProduk}')`
-        let sql2 = `UPDATE products SET qty = ${req.body.qty}-${req.body.orderQty} WHERE id = '${req.body.idProduct}'`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
-                try {
-                    db.query(sql2, (err,result)=>{
-                        if (err) throw err
-                        res.send('Success ATC')       
-                    })
-                } catch (error) {
-                    console.log(error);
-                }
+                res.send('success')
             })
         } catch (error) {
             console.log(error);
@@ -382,18 +385,10 @@ module.exports = {
 
     addqty: (req,res)=>{
         let sql = `UPDATE carts SET orderQty = ${req.body.orderQtyNow} WHERE idProduct = '${req.body.idProduct}'`
-        let sql2 = `UPDATE products SET qty = qty-${req.body.orderQty} WHERE id = '${req.body.idProduct}'`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
-                try {
-                    db.query(sql2, (err,result)=>{
-                        if (err) throw err
-                        res.send('Success ATC')       
-                    })
-                } catch (error) {
-                    console.log(error);
-                }
+                res.send('Success ATC')       
             })
         } catch (error) {
             console.log(error);
@@ -728,9 +723,10 @@ module.exports = {
     rejectverification: (req,res) => {
         let sql = `UPDATE transactions SET isVerified=2, statusNow='Pembayaran Tidak Terverifikasi', ket='Hangus' WHERE id=${req.body.id}`
         let sql2 = `UPDATE alltransactions SET isVerified=2, statusNow='Pembayaran Tidak Terverifikasi', ket='Hangus' WHERE id=${req.body.id}`
-        let sql3 = `INSERT INTO history VALUES (0, '${req.body.id}', '${req.body.tglDitolak}', '${req.body.idBuyer}', '${req.body.namaBuyer}',
-                    '${req.body.idSeller}', '${req.body.namaSeller}', ${req.body.nilaiTransaksi}, 0, 0, 'Barang tidak dikirim')`
-        let sql4 = `DELETE FROM transactions WHERE id=${req.body.id} AND ket='Hangus'`
+        let sql3 = `DELETE FROM orders WHERE idTransaction=${req.body.id}`
+        let sql4 = `INSERT INTO history VALUES (0, '${req.body.id}', '${req.body.tglDitolak}', '${req.body.idBuyer}', '${req.body.namaBuyer}',
+                    '${req.body.idSeller}', '${req.body.namaSeller}', ${req.body.nilaiTransaksi}, 0, 0, 'Pembayaran Tidak Terverifikasi')`
+        let sql5 = `DELETE FROM transactions WHERE id=${req.body.id} AND ket='Hangus'`
         try {
             db.query(sql, (err, result) => {
                 if (err) throw err
@@ -743,7 +739,14 @@ module.exports = {
                                 try {
                                     db.query(sql4, (err, result) => {
                                         if (err) throw err
-                                        res.send('success')
+                                        try {
+                                            db.query(sql5, (err, result) => {
+                                                if (err) throw err
+                                                res.send('success')
+                                            })   
+                                        } catch (error) {
+                                            console.log(error);
+                                        }
                                     })   
                                 } catch (error) {
                                     console.log(error);
@@ -763,11 +766,14 @@ module.exports = {
     },
 
     rejectshippingverification: (req,res) => {
-        let sql = `UPDATE transactions SET isShipped=2, statusNow='Barang tidak dikirim', ket='Hangus' WHERE id=${req.body.id}`
-        let sql2 = `UPDATE alltransactions SET isShipped=2, statusNow='Barang tidak dikirim', ket='Hangus' WHERE id=${req.body.id}`
-        let sql3 = `INSERT INTO history VALUES (0, '${req.body.id}', '${req.body.tglDitolak}', '${req.body.idBuyer}', '${req.body.namaBuyer}',
+        let sql = `UPDATE products SET qty=qty+(SELECT orderQty from orders WHERE idTransaction=${req.body.id}) 
+                    WHERE id=(SELECT idProduct from orders WHERE idTransaction=${req.body.id})`
+        let sql2 = `UPDATE transactions SET isShipped=2, statusNow='Barang tidak dikirim', ket='Hangus' WHERE id=${req.body.id}`
+        let sql3 = `UPDATE alltransactions SET isShipped=2, statusNow='Barang tidak dikirim', ket='Hangus' WHERE id=${req.body.id}`
+        let sql4 = `DELETE FROM orders WHERE idTransaction=${req.body.id}`
+        let sql5 = `INSERT INTO history VALUES (0, '${req.body.id}', '${req.body.tglDitolak}', '${req.body.idBuyer}', '${req.body.namaBuyer}',
                     '${req.body.idSeller}', '${req.body.namaSeller}', ${req.body.nilaiTransaksi}, 0, 0, 'Barang tidak dikirim')`
-        let sql4 = `DELETE FROM transactions WHERE id=${req.body.id} AND ket='Hangus'`
+        let sql6 = `DELETE FROM transactions WHERE id=${req.body.id} AND ket='Hangus'`
         try {
             db.query(sql, (err, result) => {
                 if (err) throw err
@@ -780,7 +786,21 @@ module.exports = {
                                 try {
                                     db.query(sql4, (err, result) => {
                                         if (err) throw err
-                                        res.send('success')
+                                        try {
+                                            db.query(sql5, (err, result) => {
+                                                if (err) throw err
+                                                try {
+                                                    db.query(sql6, (err, result) => {
+                                                        if (err) throw err
+                                                        res.send('success')   
+                                                    })   
+                                                } catch (error) {
+                                                    console.log(error);
+                                                }   
+                                            })   
+                                        } catch (error) {
+                                            console.log(error);
+                                        }
                                     })   
                                 } catch (error) {
                                     console.log(error);
@@ -985,6 +1005,89 @@ module.exports = {
                     console.log(error);
                 }
                 })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    refreshquantity: (req,res)=>{
+        let sql=`UPDATE products SET qty=qty-${req.body.orderQty} WHERE id=${req.body.idProduct}`
+        try {
+            db.query(sql, (err,result)=>{
+                if(err) throw err
+                res.send('Success')
+                })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    rejectquantity: (req,res)=>{
+        let sql=`SELECT orderQty, idProduct FROM orders JOIN transactions ON transactions.id=orders.idTransaction 
+                    WHERE idTransaction=${req.body.idTransaction}`
+        try {
+            db.query(sql, (err,result)=>{
+                if(err) throw err
+                try {
+                    for(i=0; i<result.length; i++){
+                    db.query(`UPDATE products SET qty=qty+${result[i].orderQty} WHERE id=${result[i].idProduct}`, (err,result)=>{
+                        if(err) throw err
+                        })
+                    }
+                    res.send('Success')
+                } catch (error) {
+                    console.log(error);
+                }
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    mostwantedproduct: (req, res)=>{
+        let sql = `SELECT namaProduk FROM (SELECT namaProduk, COUNT(idProduct) AS totalTerjual FROM orders WHERE idSeller=${req.query.userId} 
+                GROUP BY idProduct) AS T ORDER BY totalTerjual DESC LIMIT 1`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    totaltransactionbuy : (req, res)=>{
+        let sql = `SELECT COUNT(idBuyer) AS totalTransaksi FROM alltransactions WHERE idBuyer=${req.query.userId}`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    totalproductnow : (req, res)=>{
+        let sql = `SELECT COUNT(idUser) AS totalProduk FROM products WHERE idUser=${req.query.userId}`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    totalproductsold : (req, res)=>{
+        let sql = `SELECT COUNT(idProduct) AS totalProduk FROM orders WHERE idSeller=${req.query.userId} AND isDone=1`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
         } catch (error) {
             console.log(error);
         }
