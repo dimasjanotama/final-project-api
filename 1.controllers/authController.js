@@ -139,8 +139,7 @@ module.exports = {
         let data = JSON.parse(req.body.data)
         
         let sql = `insert into products values (0, '${data.idUser}', '${data.namaSeller}', '${data.pulauUser}','${data.namaProduk}', '${data.kategori}', 
-        '${data.subKategori}', '${data.harga}', '${data.berat}', '${data.kondisi}', '${data.deskripsi}', 
-        '${req.file.filename}', '${data.qty}')`
+        '${data.harga}', '${data.berat}', '${data.kondisi}', '${data.deskripsi}', '${req.file.filename}', '${data.qty}')`
         try {
             // if(req.validation) throw req.validation
             // if(req.file.size>5) throw {error: true, message: 'Image size too large'}
@@ -157,7 +156,7 @@ module.exports = {
     editproduct: (req,res) => {
         let data = JSON.parse(req.body.data)
         let sql = `UPDATE products SET namaProduk='${data.namaProduk}', propinsiUser='${data.propinsiUser}',kategori='${data.kategori}', 
-        subKategori='${data.subKategori}', harga='${data.harga}', berat='${data.berat}', kondisi='${data.kondisi}', deskripsi='${data.deskripsi}', 
+        harga='${data.harga}', berat='${data.berat}', kondisi='${data.kondisi}', deskripsi='${data.deskripsi}', 
         fotoProduk='${req.file.filename}', qty='${data.qty}' WHERE id=${data.id}`
         try {
             // if(req.validation) throw req.validation
@@ -216,14 +215,14 @@ module.exports = {
             if(query.namaProduk){
                 sql += ` namaProduk LIKE '%${query.namaProduk}%' AND`
             }
+            if(query.namaSeller){
+                sql += ` namaSeller LIKE '%${query.namaSeller}%' AND`
+            }
             if(query.hargamax && query.hargamin) {
                 sql += ` harga <= ${query.hargamax} AND ${query.hargamin} <= harga AND`
             }
             if(query.kategori){
                 sql += ` kategori = '${query.kategori}' AND`
-            }
-            if(query.subKategori){
-                sql += ` subKategori = '${query.subKategori}' AND`
             }
             if(query.kondisi){
                 sql += ` kondisi = '${query.kondisi}' AND`
@@ -250,14 +249,17 @@ module.exports = {
             if(query.namaProduk){
                 sql += ` namaProduk LIKE '%${query.namaProduk}%' AND`
             }
-            if(query.hargamax && query.hargamin) {
-                sql += ` harga <= ${query.hargamax} AND ${query.hargamin} <= harga AND`
+            if(query.namaSeller){
+                sql += ` namaSeller LIKE '%${query.namaSeller}%' AND`
+            }
+            if(query.hargamax) {
+                sql += ` harga <= ${query.hargamax} AND`
+            }
+            if(query.hargamin) {
+                sql += ` ${query.hargamin} <= harga AND`
             }
             if(query.kategori){
                 sql += ` kategori = '${query.kategori}' AND`
-            }
-            if(query.subKategori){
-                sql += ` subKategori = '${query.subKategori}' AND`
             }
             if(query.kondisi){
                 sql += ` kondisi = '${query.kondisi}' AND`
