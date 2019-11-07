@@ -117,6 +117,20 @@ router.get('/totalproductsold', authController.totalproductsold)
 
 router.get('/mostwantedproduct', authController.mostwantedproduct)
 
+router.get('/getsellchart', authController.getsellchart)
+
+router.get('/getbuychart', authController.getbuychart)
+
+router.get('/gettotalsell', authController.gettotalsell)
+
+router.get('/gettotalbuy', authController.gettotalbuy)
+
+
+
+// ---------------------------- HTML-PDF ----------------------------------
+
+router.get('/downloadhistory', authController.downloadhistory)
+
 // ---------------------------- MULTER -------------------------------------
 let multerStorageConfig = multer.diskStorage({
     destination: (req, file, cb) => {

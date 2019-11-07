@@ -1,6 +1,8 @@
 const db = require('../database')
 var nodemailer = require('nodemailer')
 var multer = require('multer')
+var { pdfcreate } = require('../3.helper/html-pdf')
+const pdfTemplate = require('../3.helper/historyTemplate')
 
 
 
@@ -892,7 +894,7 @@ module.exports = {
     }, 
 
     gethistory: (req, res)=>{
-        let sql = `SELECT * FROM history WHERE idBuyer=${req.query.userId} OR idSeller=${req.query.userId}`
+        let sql = `SELECT * FROM history WHERE idBuyer=${req.query.userId} OR idSeller=${req.query.userId} ORDER BY id DESC LIMIT 5`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
@@ -1085,6 +1087,45 @@ module.exports = {
 
     totalproductsold : (req, res)=>{
         let sql = `SELECT COUNT(idProduct) AS totalProduk FROM orders WHERE idSeller=${req.query.userId} AND isDone=1`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    downloadhistory: (req, res)=>{
+    
+        let replacements = {
+            username : req.query.history[0].namaBuyer
+        }
+        pdfcreate('./3.helper/historyTemplate.html', replacements, (hasil)=>{
+            res.attachment('history_transaksi.pdf')
+            hasil.pipe(res)
+        })
+    },
+
+    getsellchart: (req, res)=>{
+        let sql = `(SELECT id, EXTRACT(MONTH FROM tglPenerimaan) AS bulan, SUM(nilaiTransaksi) AS totalPenjualan FROM alltransactions 
+        WHERE idSeller=${req.query.idSeller} AND statusNow='Transaksi selesai' GROUP BY (SELECT EXTRACT(MONTH FROM tglPenerimaan) AS bulan)
+        ORDER BY id DESC LIMIT 4) ORDER BY id`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    getbuychart: (req, res)=>{
+        let sql = `(SELECT id, EXTRACT(MONTH FROM tglPenerimaan) AS bulan, SUM(nilaiTransaksi) AS totalPembelian FROM alltransactions 
+        WHERE idBuyer=${req.query.idBuyer} AND statusNow='Transaksi selesai' GROUP BY (SELECT EXTRACT(MONTH FROM tglPenerimaan) AS bulan)
+        ORDER BY id DESC LIMIT 4) ORDER BY id`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
