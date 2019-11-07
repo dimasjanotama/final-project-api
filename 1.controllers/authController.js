@@ -1134,5 +1134,29 @@ module.exports = {
         } catch (error) {
             console.log(error);
         }
+    }, 
+
+    gettotalsell: (req, res)=>{
+        let sql = `SELECT SUM(nilaiTransaksi) AS totalSell FROM alltransactions WHERE idSeller=${req.query.idSeller} AND statusNow='Transaksi selesai'`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    gettotalbuy: (req, res)=>{
+        let sql = `SELECT SUM(nilaiTransaksi) AS totalBuy FROM alltransactions WHERE idBuyer=${req.query.idBuyer} AND statusNow='Transaksi selesai'`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
     }
 }
