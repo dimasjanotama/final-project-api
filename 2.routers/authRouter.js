@@ -125,6 +125,28 @@ router.get('/gettotalsell', authController.gettotalsell)
 
 router.get('/gettotalbuy', authController.gettotalbuy)
 
+router.get('/getuserschart', authController.getuserschart)
+
+router.get('/gettotalusers', authController.gettotalusers)
+
+router.get('/transactiondonechart', authController.transactiondonechart)
+
+router.get('/totaltransactiondone', authController.totaltransactiondone)
+
+router.get('/transactionvaluechart', authController.transactionvaluechart)
+
+router.get('/totaltransactionvalue', authController.totaltransactionvalue)
+
+router.get('/transactionstatuschart', authController.transactionstatuschart)
+
+router.get('/custsatisfactionchart', authController.custsatisfactionchart)
+
+router.get('/productschart', authController.productschart)
+
+router.get('/activeseller', authController.activeseller)
+
+router.get('/activebuyer', authController.activebuyer)
+
 
 
 // ---------------------------- HTML-PDF ----------------------------------

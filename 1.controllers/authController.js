@@ -1158,5 +1158,142 @@ module.exports = {
         } catch (error) {
             console.log(error);
         }
+    },
+
+    getuserschart: (req, res)=>{
+        let sql = `(SELECT id, EXTRACT(MONTH FROM tglDaftar) AS bulan, COUNT(id) AS newUser FROM users WHERE isVerified=1 AND username !='Admin' 
+        GROUP BY (SELECT EXTRACT(MONTH FROM tglDaftar) AS bulan) ORDER BY id DESC LIMIT 4) ORDER BY id`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    gettotalusers: (req, res)=>{
+        let sql = `SELECT COUNT(id) AS totalUsers FROM users WHERE isVerified=1 AND username !='Admin'`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    transactiondonechart: (req, res)=>{
+        let sql = `(SELECT id, EXTRACT(MONTH FROM tglPenerimaan) AS bulan, COUNT(id) AS totalTransaksi FROM alltransactions 
+        WHERE statusNow='Transaksi selesai' GROUP BY (SELECT EXTRACT(MONTH FROM tglPenerimaan) AS bulan) ORDER BY id DESC LIMIT 4) ORDER BY id`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    totaltransactiondone: (req, res)=>{
+        let sql = `SELECT COUNT(id) AS totalTransactions FROM alltransactions WHERE statusNow='Transaksi selesai'`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    transactionvaluechart: (req, res)=>{
+        let sql = `(SELECT id, EXTRACT(MONTH FROM tglPenerimaan) AS bulan, SUM(nilaiTransaksi) AS nilaiTransaksi FROM alltransactions 
+        WHERE statusNow='Transaksi selesai' GROUP BY (SELECT EXTRACT(MONTH FROM tglPenerimaan) AS bulan) ORDER BY id DESC LIMIT 4) ORDER BY id`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    totaltransactionvalue: (req, res)=>{
+        let sql = `SELECT SUM(nilaiTransaksi) AS transactionsValue FROM alltransactions WHERE statusNow='Transaksi selesai'`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    transactionstatuschart: (req, res)=>{
+        let sql = `SELECT COUNT(id) AS totalTransactions, statusNow FROM alltransactions WHERE ket='Lanjut' GROUP BY statusNow`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    custsatisfactionchart: (req, res)=>{
+        let sql = `SELECT SUM(totalFeedback) AS totalFeedback, SUM(totalPuas) AS totalPuas FROM dataseller`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    productschart: (req, res)=>{
+        let sql = `SELECT kategori, COUNT(id) AS totalProduct FROM products WHERE qty>0 GROUP BY kategori`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    activeseller: (req, res)=>{
+        let sql = `SELECT namaSeller, COUNT(id) AS totalTransaksi FROM alltransactions WHERE statusNow='Transaksi selesai'
+        GROUP BY namaSeller ORDER BY totalTransaksi DESC LIMIT 1`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    activebuyer: (req, res)=>{
+        let sql = `SELECT namaBuyer, COUNT(id) AS totalTransaksi FROM alltransactions WHERE statusNow='Transaksi selesai'
+        GROUP BY namaBuyer ORDER BY totalTransaksi DESC LIMIT 1`
+        try {
+            db.query(sql, (err,result)=>{
+                if (err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
     }
 }
