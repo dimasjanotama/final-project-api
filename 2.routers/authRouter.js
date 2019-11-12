@@ -10,31 +10,31 @@ router.get('/login', authController.login)
 
 router.get('/getuser', authController.getuser)
 
-router.get('/getcart', verifytoken, authController.getcart)
+router.get('/getcart', authController.getcart)
 
-router.get('/getuserbyid', verifytoken, authController.getuserbyid)
+router.get('/getuserbyid', authController.getuserbyid)
 
 router.post('/register', authController.register)
 
 router.post('/postdataseller', authController.postdataseller)
 
-router.get('/verify', verifytoken, authController.verify)
+router.get('/verify',  authController.verify)
 
-router.get('/getproduct', verifytoken, authController.getproduct)
+router.get('/getproduct',  authController.getproduct)
 
-router.get('/getnewestproduct', verifytoken, authController.getnewestproduct)
+router.get('/getnewestproduct',  authController.getnewestproduct)
 
-router.get('/countproducts', verifytoken, authController.countproducts)
+router.get('/countproducts',  authController.countproducts)
 
-router.get('/countfilterproducts', verifytoken, authController.countfilterproducts)
+router.get('/countfilterproducts',  authController.countfilterproducts)
 
-router.get('/paginationproducts', verifytoken, authController.paginationproducts)
+router.get('/paginationproducts',  authController.paginationproducts)
 
-router.get('/paginationfilterproducts', verifytoken, authController.paginationfilterproducts)
+router.get('/paginationfilterproducts',  authController.paginationfilterproducts)
 
-router.get('/getproductbyid', verifytoken, authController.getproductbyid)
+router.get('/getproductbyid',  authController.getproductbyid)
 
-router.get('/getproductsearch', verifytoken, authController.getproductsearch)
+router.get('/getproductsearch',  authController.getproductsearch)
 
 router.delete('/deleteproduct', authController.deleteproduct)
 
@@ -54,19 +54,19 @@ router.post('/addtransaction', authController.addtransaction)
 
 router.post('/addhistory', authController.addhistory)
 
-router.get('/gettransaction', verifytoken, authController.gettransaction)
+router.get('/gettransaction',  authController.gettransaction)
 
-router.get('/gettransactionbuy', verifytoken, authController.gettransactionbuy)
+router.get('/gettransactionbuy',  authController.gettransactionbuy)
 
-router.get('/getalltransactions', verifytoken, authController.getalltransactions)
+router.get('/getalltransactions',  authController.getalltransactions)
 
-router.get('/getunverifiedtransaction', verifytoken, authController.getunverifiedtransaction)
+router.get('/getunverifiedtransaction',  authController.getunverifiedtransaction)
 
-router.get('/getverifiedtransaction', verifytoken, authController.getverifiedtransaction)
+router.get('/getverifiedtransaction',  authController.getverifiedtransaction)
 
-router.get('/gettransactionorder', verifytoken, authController.gettransactionorder)
+router.get('/gettransactionorder',  authController.gettransactionorder)
 
-router.get('/getunpaidverification', verifytoken, authController.getunpaidverification)
+router.get('/getunpaidverification',  authController.getunpaidverification)
 
 router.put('/paymentverification', authController.paymentverification)
 
@@ -92,19 +92,19 @@ router.put('/updateprofile', authController.updateprofile)
 
 router.put('/setlogtime', authController.setlogtime)
 
-router.get('/getorderlist', verifytoken, authController.getorderlist)
+router.get('/getorderlist',  authController.getorderlist)
 
-router.get('/getorderbuy', verifytoken, authController.getorderbuy)
+router.get('/getorderbuy',  authController.getorderbuy)
 
-router.get('/gethistory', verifytoken, authController.gethistory)
+router.get('/gethistory',  authController.gethistory)
 
-router.get('/getdataseller', verifytoken, authController.getdataseller)
+router.get('/getdataseller',  authController.getdataseller)
 
-router.get('/getproductsold', verifytoken, authController.getproductsold)
+router.get('/getproductsold',  authController.getproductsold)
 
-router.get('/gettotalproduct', verifytoken, authController.gettotalproduct)
+router.get('/gettotalproduct',  authController.gettotalproduct)
 
-router.get('/gettransactiondetail', verifytoken, authController.gettransactiondetail)
+router.get('/gettransactiondetail',  authController.gettransactiondetail)
 
 router.put('/transactiontimeout', authController.transactiontimeout)
 
@@ -112,43 +112,43 @@ router.put('/refreshquantity', authController.refreshquantity)
 
 router.put('/rejectquantity', authController.rejectquantity)
 
-router.get('/totaltransactionbuy', verifytoken, authController.totaltransactionbuy)
+router.get('/totaltransactionbuy',  authController.totaltransactionbuy)
 
-router.get('/totalproductnow', verifytoken, authController.totalproductnow)
+router.get('/totalproductnow',  authController.totalproductnow)
 
-router.get('/totalproductsold', verifytoken, authController.totalproductsold)
+router.get('/totalproductsold',  authController.totalproductsold)
 
-router.get('/mostwantedproduct', verifytoken, authController.mostwantedproduct)
+router.get('/mostwantedproduct',  authController.mostwantedproduct)
 
-router.get('/getsellchart', verifytoken, authController.getsellchart)
+router.get('/getsellchart',  authController.getsellchart)
 
-router.get('/getbuychart', verifytoken, authController.getbuychart)
+router.get('/getbuychart',  authController.getbuychart)
 
-router.get('/gettotalsell', verifytoken, authController.gettotalsell)
+router.get('/gettotalsell',  authController.gettotalsell)
 
-router.get('/gettotalbuy', verifytoken, authController.gettotalbuy)
+router.get('/gettotalbuy',  authController.gettotalbuy)
 
-router.get('/getuserschart', verifytoken, authController.getuserschart)
+router.get('/getuserschart',  authController.getuserschart)
 
-router.get('/gettotalusers', verifytoken, authController.gettotalusers)
+router.get('/gettotalusers',  authController.gettotalusers)
 
-router.get('/transactiondonechart', verifytoken, authController.transactiondonechart)
+router.get('/transactiondonechart',  authController.transactiondonechart)
 
-router.get('/totaltransactiondone', verifytoken, authController.totaltransactiondone)
+router.get('/totaltransactiondone',  authController.totaltransactiondone)
 
-router.get('/transactionvaluechart', verifytoken, authController.transactionvaluechart)
+router.get('/transactionvaluechart',  authController.transactionvaluechart)
 
-router.get('/totaltransactionvalue', verifytoken, authController.totaltransactionvalue)
+router.get('/totaltransactionvalue',  authController.totaltransactionvalue)
 
-router.get('/transactionstatuschart', verifytoken, authController.transactionstatuschart)
+router.get('/transactionstatuschart',  authController.transactionstatuschart)
 
-router.get('/custsatisfactionchart', verifytoken, authController.custsatisfactionchart)
+router.get('/custsatisfactionchart',  authController.custsatisfactionchart)
 
-router.get('/productschart', verifytoken, authController.productschart)
+router.get('/productschart',  authController.productschart)
 
-router.get('/activeseller', verifytoken, authController.activeseller)
+router.get('/activeseller', authController.activeseller)
 
-router.get('/activebuyer', verifytoken, authController.activebuyer)
+router.get('/activebuyer', authController.activebuyer)
 
 
 // ---------------------------- HTML-PDF ----------------------------------

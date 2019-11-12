@@ -439,7 +439,7 @@ module.exports = {
         let sql = `INSERT INTO orders VALUES (0, '${req.body.idBuyer}', '${req.body.namaBuyer}', '${req.body.alamat}', '${req.body.kelurahan}',
         '${req.body.kecamatan}', '${req.body.kabupaten}', '${req.body.propinsi}', '${req.body.kodepos}', '${req.body.pulauBuyer}', '${req.body.idSeller}', 
         '${req.body.namaSeller}', '${req.body.pulauSeller}', 0, '${req.body.idProduct}', '${req.body.namaProduk}', '${req.body.berat}', 
-        '${req.body.orderQty}', '${req.body.harga}', '${req.body.fotoProduk}', 0, 0, 0 )`
+        '${req.body.orderQty}', '${req.body.harga}', '${req.body.fotoProduk}', 0, 0, 0, 0 )`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
