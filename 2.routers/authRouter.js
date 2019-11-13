@@ -152,6 +152,8 @@ router.get('/activebuyer', authController.activebuyer)
 
 router.get('/getbuyercartqty', authController.getbuyercartqty)
 
+router.get('/cekseller', authController.cekseller)
+
 
 // ---------------------------- HTML-PDF ----------------------------------
 

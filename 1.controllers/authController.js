@@ -403,6 +403,18 @@ module.exports = {
         }
     },
 
+    cekseller: (req,res)=>{
+        let sql = `SELECT idSeller FROM carts WHERE idBuyer=${req.query.idBuyer};`
+        try {
+            db.query(sql ,(err,result)=>{
+                if(err) throw err
+                res.send(result)
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
     addqty: (req,res)=>{
         let sql = `UPDATE carts SET orderQty=${req.body.orderQtyNow} WHERE idProduct='${req.body.idProduct}'`
         let sql2 = `INSERT INTO tempcart VALUE (0, '${req.body.idBuyer}', '${req.body.idProduct}', '${req.body.orderQty}')`
