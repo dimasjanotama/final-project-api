@@ -150,6 +150,8 @@ router.get('/activeseller', authController.activeseller)
 
 router.get('/activebuyer', authController.activebuyer)
 
+router.get('/getbuyercartqty', authController.getbuyercartqty)
+
 
 // ---------------------------- HTML-PDF ----------------------------------
 
