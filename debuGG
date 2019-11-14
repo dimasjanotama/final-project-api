@@ -1,8 +1,0 @@
-router.get('/login', authController.login) -- OK
-
-router.get('/getuser', authController.getuser) -- OK
-
-router.post('/register', authController.register) -- OK
-
-router.post('/uploadproduct', upload.single('aneh'), authController.uploadproduct) -- OK
-
