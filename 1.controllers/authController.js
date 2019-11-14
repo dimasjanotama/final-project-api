@@ -711,10 +711,7 @@ module.exports = {
     },
 
     transactiondone: (req,res) => {
-        let sql=`SELECT t.idProduct,t.idBuyer FROM tempcart t JOIN orders ON orders.idProduct=t.idProduct 
-        JOIN transactions ON orders.idTransaction=transactions.id 
-        WHERE t.idProduct=(SELECT orders.idProduct FROM orders WHERE idTransaction=(SELECT transactions.id 
-        FROM transactions WHERE id = ${req.body.id})) AND t.idBuyer = transactions.idBuyer`
+        let sql= `DELETE FROM tempcart WHERE idBuyer=${req.body.idBuyer}`
         let sql2 = `UPDATE transactions SET statusNow='Transaksi selesai' WHERE id=${req.body.id}`
         let sql3 = `UPDATE alltransactions SET statusNow='Transaksi selesai' WHERE id=${req.body.id}`
         let sql4 = `UPDATE orders SET isDone=1 WHERE idTransaction=${req.body.id}`
@@ -722,22 +719,15 @@ module.exports = {
             db.query(sql, (err, result) => {
                 if (err) throw err
                 try {
-                    db.query(`DELETE FROM tempcart WHERE idProduct=${result[0].idProduct} AND idBuyer=${result[0].idBuyer}`, (err, result) => {
+                    db.query(sql2, (err, result) => {
                         if (err) throw err
                         try {
-                            db.query(sql2, (err, result) => {
+                            db.query(sql3, (err, result) => {
                                 if (err) throw err
                                 try {
-                                    db.query(sql3, (err, result) => {
-                                        if (err) throw err
-                                        try {
-                                            db.query(sql4, (err, result) => {
-                                                if (err) throw err
-                                                res.send('success')
-                                            })   
-                                        } catch (error) {
-                                            console.log(error);
-                                        }
+                                    db.query(sql4, (err, result) => {
+                                        if (err) throw err  
+                                        res.send('success')
                                     })   
                                 } catch (error) {
                                     console.log(error);
@@ -779,10 +769,7 @@ module.exports = {
     },
 
     rejectverification: (req,res) => {
-        let sql=`SELECT t.idProduct,t.idBuyer FROM tempcart t JOIN orders ON orders.idProduct=t.idProduct 
-        JOIN transactions ON orders.idTransaction=transactions.id 
-        WHERE t.idProduct=(SELECT orders.idProduct FROM orders WHERE idTransaction=(SELECT transactions.id 
-        FROM transactions WHERE id = ${req.body.id})) AND t.idBuyer = transactions.idBuyer`
+        let sql= `DELETE FROM tempcart WHERE idBuyer=${req.body.idBuyer}`
         let sql2 = `UPDATE transactions SET isVerified=2, statusNow='Pembayaran Tidak Terverifikasi', ket='Hangus' WHERE id=${req.body.id}`
         let sql3 = `UPDATE alltransactions SET isVerified=2, statusNow='Pembayaran Tidak Terverifikasi', ket='Hangus' WHERE id=${req.body.id}`
         let sql4 = `DELETE FROM orders WHERE idTransaction=${req.body.id}`
@@ -793,28 +780,21 @@ module.exports = {
             db.query(sql, (err, result) => {
                 if (err) throw err
                 try {
-                    db.query(`DELETE FROM tempcart WHERE idProduct=${result[0].idProduct} AND idBuyer=${result[0].idBuyer}`, (err, result) => {
+                    db.query(sql2, (err, result) => {
                         if (err) throw err
                         try {
-                            db.query(sql2, (err, result) => {
+                            db.query(sql3, (err, result) => {
                                 if (err) throw err
                                 try {
-                                    db.query(sql3, (err, result) => {
+                                    db.query(sql4, (err, result) => {
                                         if (err) throw err
                                         try {
-                                            db.query(sql4, (err, result) => {
+                                            db.query(sql5, (err, result) => {
                                                 if (err) throw err
                                                 try {
-                                                    db.query(sql5, (err, result) => {
-                                                        if (err) throw err
-                                                        try {
-                                                            db.query(sql6, (err, result) => {
-                                                                if (err) throw err
-                                                                res.send('success')
-                                                            })   
-                                                        } catch (error) {
-                                                            console.log(error);
-                                                        }
+                                                    db.query(sql6, (err, result) => {
+                                                        if (err) throw err 
+                                                        res.send('success')
                                                     })   
                                                 } catch (error) {
                                                     console.log(error);
@@ -1014,7 +994,7 @@ module.exports = {
     }, 
 
     gettransactiondetail: (req, res)=>{
-        let sql = `SELECT * FROM orders WHERE idBuyer=${req.query.idBuyer} AND idTransaction=${req.query.idTransaction}`
+        let sql = `SELECT * FROM orders WHERE idBuyer=${req.query.idBuyer} AND idTransaction=${req.query.idTransaction} AND isDone=0`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
