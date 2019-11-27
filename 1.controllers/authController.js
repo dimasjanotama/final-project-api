@@ -417,14 +417,23 @@ module.exports = {
 
     addqty: (req,res)=>{
         let sql = `UPDATE carts SET orderQty=${req.body.orderQtyNow} WHERE idProduct='${req.body.idProduct}'`
-        let sql2 = `INSERT INTO tempcart VALUE (0, '${req.body.idBuyer}', '${req.body.idProduct}', '${req.body.orderQty}')`
+        let sql2 = `UPDATE tempcart SET orderQty=${req.body.orderQtyNow} WHERE idProduct='${req.body.idProduct}' AND idBuyer='${req.body.idBuyer}'`
+        let sql3 = `UPDATE orders SET orderQty=${req.body.orderQtyNow} WHERE idProduct='${req.body.idProduct}' AND idBuyer='${req.body.idBuyer}' 
+                    ORDER BY id DESC LIMIT 1`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
                 try {
                     db.query(sql2, (err,result)=>{
                         if (err) throw err
-                        res.send('Success ATC')       
+                        try {
+                            db.query(sql3, (err,result)=>{
+                                if (err) throw err
+                                res.send('Success ATC')       
+                            })
+                        } catch (error) {
+                            console.log(error);
+                        }        
                     })
                 } catch (error) {
                     console.log(error);
