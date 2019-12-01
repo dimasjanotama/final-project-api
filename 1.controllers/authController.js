@@ -392,7 +392,7 @@ module.exports = {
     },
 
     cekqty: (req,res)=>{
-        let sql = `SELECT COUNT(*) AS sudahada, orderQty FROM carts WHERE idProduct=${req.query.idProduct} AND idBuyer=${req.query.idBuyer}`
+        let sql = `SELECT COUNT(*) AS sudahada, idProduct FROM carts WHERE idProduct=${req.query.idProduct} AND idBuyer=${req.query.idBuyer}`
         try {
             db.query(sql ,(err,result)=>{
                 if(err) throw err
@@ -780,7 +780,7 @@ module.exports = {
     rejectverification: (req,res) => {
         let sql= `DELETE FROM tempcart WHERE idBuyer=${req.body.idBuyer}`
         let sql2 = `UPDATE transactions SET isVerified=2, statusNow='Pembayaran Tidak Terverifikasi', ket='Hangus' WHERE id=${req.body.id}`
-        let sql3 = `UPDATE alltransactions SET isVerified=2, statusNow='Pembayaran Tidak Terverifikasi', ket='Hangus' WHERE id=${req.body.id}`
+        let sql3 = `UPDATE alltransactions SET isVerified=2, statusNow='Transaksi Tidak Sah', ket='Hangus' WHERE id=${req.body.id}`
         let sql4 = `DELETE FROM orders WHERE idTransaction=${req.body.id} AND isDone=0`
         let sql5 = `INSERT INTO history VALUES (0, '${req.body.id}', '${req.body.tglDitolak}', '${req.body.idBuyer}', '${req.body.namaBuyer}',
                     '${req.body.idSeller}', '${req.body.namaSeller}', ${req.body.nilaiTransaksi}, 0, 0, 'Pembayaran Tidak Terverifikasi')`
