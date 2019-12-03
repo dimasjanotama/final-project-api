@@ -72,6 +72,8 @@ router.put('/paymentverification', authController.paymentverification)
 
 router.put('/rejectverification', authController.rejectverification)
 
+router.put('/rejectauthentication', authController.rejectauthentication)
+
 router.put('/shippingverification', authController.shippingverification)
 
 router.put('/rejectshippingverification', authController.rejectshippingverification)
