@@ -885,14 +885,12 @@ module.exports = {
 
     rejectshippingverification: (req,res) => {
         let sql= `DELETE FROM tempcart WHERE idBuyer=${req.body.idBuyer}`
-        let sql2 = `UPDATE products SET qty=qty+(SELECT orderQty from orders WHERE idTransaction=${req.body.id}) 
-                    WHERE id=(SELECT idProduct from orders WHERE idTransaction=${req.body.id})`
-        let sql3 = `UPDATE transactions SET isShipped=2, statusNow='Barang tidak dikirim', ket='Hangus' WHERE id=${req.body.id}`
-        let sql4 = `UPDATE alltransactions SET isShipped=2, statusNow='Barang tidak dikirim', ket='Hangus' WHERE id=${req.body.id}`
-        let sql5 = `DELETE FROM orders WHERE idTransaction=${req.body.id} AND isDone=0`
-        let sql6 = `INSERT INTO history VALUES (0, '${req.body.id}', '${req.body.tglDitolak}', '${req.body.idBuyer}', '${req.body.namaBuyer}',
+        let sql2 = `UPDATE transactions SET isShipped=2, statusNow='Barang tidak dikirim', ket='Hangus' WHERE id=${req.body.id}`
+        let sql3 = `UPDATE alltransactions SET isShipped=2, statusNow='Barang tidak dikirim', ket='Hangus' WHERE id=${req.body.id}`
+        let sql4 = `DELETE FROM orders WHERE idTransaction=${req.body.id} AND isDone=0`
+        let sql5 = `INSERT INTO history VALUES (0, '${req.body.id}', '${req.body.tglDitolak}', '${req.body.idBuyer}', '${req.body.namaBuyer}',
                     '${req.body.idSeller}', '${req.body.namaSeller}', ${req.body.nilaiTransaksi}, 0, 0, 'Barang tidak dikirim')`
-        let sql7 = `DELETE FROM transactions WHERE id=${req.body.id} AND ket='Hangus'`
+        let sql6 = `DELETE FROM transactions WHERE id=${req.body.id} AND ket='Hangus'`
         try {
             db.query(sql, (err, result) => {
                 if (err) throw err
@@ -911,14 +909,7 @@ module.exports = {
                                                 try {
                                                     db.query(sql6, (err, result) => {
                                                         if (err) throw err
-                                                        try {
-                                                            db.query(sql7, (err, result) => {
-                                                                if (err) throw err
-                                                                res.send('success')   
-                                                            })   
-                                                        } catch (error) {
-                                                            console.log(error);
-                                                        }   
+                                                        res.send('success') 
                                                     })   
                                                 } catch (error) {
                                                     console.log(error);
