@@ -157,9 +157,9 @@ module.exports = {
 
     editproduct: (req,res) => {
         let data = JSON.parse(req.body.data)
-        let sql = `UPDATE products SET namaProduk='${data.namaProduk}', propinsiUser='${data.propinsiUser}',kategori='${data.kategori}', 
+        let sql = `UPDATE products SET namaProduk='${data.namaProduk}', kategori='${data.kategori}', 
         harga='${data.harga}', berat='${data.berat}', kondisi='${data.kondisi}', deskripsi='${data.deskripsi}', 
-        fotoProduk='${req.file.filename}', qty='${data.qty}' WHERE id=${data.id}`
+        fotoProduk='${req.file.filename}', qty='${data.qty}', pulauUser='${data.pulauUser}' WHERE id=${data.id}`
         try {
             // if(req.validation) throw req.validation
             // if(req.file.size>5) throw {error: true, message: 'Image size too large'}
@@ -1170,8 +1170,8 @@ module.exports = {
     },
 
     getsellchart: (req, res)=>{
-        let sql = `(SELECT id, EXTRACT(MONTH FROM tglPenerimaan) AS bulan, SUM(nilaiTransaksi) AS totalPenjualan FROM alltransactions 
-        WHERE idSeller=${req.query.idSeller} AND statusNow='Transaksi selesai' GROUP BY (SELECT EXTRACT(MONTH FROM tglPenerimaan) AS bulan)
+        let sql = `(SELECT id, EXTRACT(MONTH FROM tanggal) AS bulan, SUM(hakSeller) AS totalPenjualan FROM history
+        WHERE idSeller=${req.query.idSeller} AND statusNow='Done' GROUP BY (SELECT EXTRACT(MONTH FROM tanggal) AS bulan)
         ORDER BY id DESC LIMIT 4) ORDER BY id`
         try {
             db.query(sql, (err,result)=>{
@@ -1184,8 +1184,8 @@ module.exports = {
     },
 
     getbuychart: (req, res)=>{
-        let sql = `(SELECT id, EXTRACT(MONTH FROM tglPenerimaan) AS bulan, SUM(nilaiTransaksi) AS totalPembelian FROM alltransactions 
-        WHERE idBuyer=${req.query.idBuyer} AND statusNow='Transaksi selesai' GROUP BY (SELECT EXTRACT(MONTH FROM tglPenerimaan) AS bulan)
+        let sql = `(SELECT id, EXTRACT(MONTH FROM tanggal) AS bulan, SUM(hakSeller) AS totalPembelian FROM history 
+        WHERE idBuyer=${req.query.idBuyer} AND statusNow='Done' GROUP BY (SELECT EXTRACT(MONTH FROM tanggal) AS bulan)
         ORDER BY id DESC LIMIT 4) ORDER BY id`
         try {
             db.query(sql, (err,result)=>{
@@ -1198,7 +1198,7 @@ module.exports = {
     }, 
 
     gettotalsell: (req, res)=>{
-        let sql = `SELECT SUM(nilaiTransaksi) AS totalSell FROM alltransactions WHERE idSeller=${req.query.idSeller} AND statusNow='Transaksi selesai'`
+        let sql = `SELECT SUM(hakSeller) AS totalSell FROM history WHERE idSeller=${req.query.idSeller} AND statusNow='Done'`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
@@ -1210,7 +1210,7 @@ module.exports = {
     },
 
     gettotalbuy: (req, res)=>{
-        let sql = `SELECT SUM(nilaiTransaksi) AS totalBuy FROM alltransactions WHERE idBuyer=${req.query.idBuyer} AND statusNow='Transaksi selesai'`
+        let sql = `SELECT SUM(hakSeller) AS totalBuy FROM history WHERE idBuyer=${req.query.idBuyer} AND statusNow='Done'`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
@@ -1272,8 +1272,8 @@ module.exports = {
     },
 
     transactionvaluechart: (req, res)=>{
-        let sql = `(SELECT id, EXTRACT(MONTH FROM tglPenerimaan) AS bulan, SUM(nilaiTransaksi) AS nilaiTransaksi FROM alltransactions 
-        WHERE statusNow='Transaksi selesai' GROUP BY (SELECT EXTRACT(MONTH FROM tglPenerimaan) AS bulan) ORDER BY id DESC LIMIT 4) ORDER BY id`
+        let sql = `(SELECT id, EXTRACT(MONTH FROM tanggal) AS bulan, SUM(hakSeller) AS nilaiTransaksi FROM history 
+        WHERE statusNow='Done' GROUP BY (SELECT EXTRACT(MONTH FROM tanggal) AS bulan) ORDER BY id DESC LIMIT 4) ORDER BY id`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
@@ -1285,7 +1285,7 @@ module.exports = {
     },
 
     totaltransactionvalue: (req, res)=>{
-        let sql = `SELECT SUM(nilaiTransaksi) AS transactionsValue FROM alltransactions WHERE statusNow='Transaksi selesai'`
+        let sql = `SELECT SUM(hakSeller) AS transactionsValue FROM history WHERE statusNow='Done'`
         try {
             db.query(sql, (err,result)=>{
                 if (err) throw err
